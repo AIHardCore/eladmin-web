@@ -75,6 +75,18 @@ export default {
 
   },
   methods: {
+    clearContent() {
+      if (this.editor) {
+        this.editor.clear() // 清空编辑器内容
+        this.editValue = '' // 清空本地数据
+        this.$emit('input', '') // 触发input事件，通知父组件内容已清空
+      }
+    },
+    setText(text) {
+      if (this.editor) {
+        this.editValue = text // 设置数据
+      }
+    },
     onCreated(editor) {
       this.editor = Object.seal(editor)
       this.editValue = this.value
