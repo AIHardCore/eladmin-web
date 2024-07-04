@@ -74,7 +74,7 @@
 </template>
 
 <script>
-import crudMember from '@/api/system/member'
+import crudMember from '@/api/member'
 import CRUD, { presenter, header, form, crud } from '@crud/crud'
 import rrOperation from '@crud/RR.operation'
 import crudOperation from '@crud/CRUD.operation'

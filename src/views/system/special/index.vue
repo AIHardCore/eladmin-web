@@ -32,16 +32,16 @@
           <el-form-item label="名称" prop="name">
             <el-input v-model="form.name" style="width: 370px;" />
           </el-form-item>
-          <el-form-item label="跳转页面" prop="url">
-            <el-input v-model="form.url" style="width: 370px;" />
+          <el-form-item label="描述" prop="desc">
+            <el-input v-model="form.desc" style="width: 370px;" />
           </el-form-item>
-          <el-form-item label="图标" prop="icon">
-            <el-input v-model="form.icon" style="width: 370px;" />
+          <el-form-item label="封面" prop="cover">
+            <el-input v-model="form.cover" style="width: 370px;" />
           </el-form-item>
           <el-form-item label="排序">
             <el-input v-model="form.sort" style="width: 370px;" />
           </el-form-item>
-          <el-form-item label="状态" prop="enabled">
+          <el-form-item label="状态">
             <el-radio v-for="item in dict.user_status" :key="item.id" v-model="form.enabled" :label="item.value">{{ item.label }}</el-radio>
           </el-form-item>
         </el-form>
@@ -54,11 +54,23 @@
       <el-table ref="table" v-loading="crud.loading" :data="crud.data" size="small" style="width: 100%;" @selection-change="crud.selectionChangeHandler">
         <el-table-column type="selection" width="55" />
         <el-table-column prop="name" label="名称" />
-        <el-table-column prop="url" label="跳转页面" />
-        <el-table-column prop="icon" label="图标" />
+        <el-table-column prop="desc" label="描述" />
+        <el-table-column prop="cover" label="封面">
+          <template slot-scope="{row}">
+            <el-image
+              :src="row.cover"
+              :preview-src-list="[row.cover]"
+              fit="contain"
+              lazy
+              class="el-avatar"
+            >
+              <div slot="error">
+                <i class="el-icon-document" />
+              </div>
+            </el-image>
+          </template>
+        </el-table-column>
         <el-table-column prop="sort" label="排序" />
-        <el-table-column prop="createTime" label="创建时间" />
-        <el-table-column prop="updateTime" label="更新时间" />
         <el-table-column label="状态" align="center" prop="enabled">
           <template slot-scope="scope">
             <el-switch
@@ -69,7 +81,7 @@
             />
           </template>
         </el-table-column>
-        <el-table-column v-if="checkPer(['admin','section:edit','section:del'])" label="操作" width="150px" align="center">
+        <el-table-column v-if="checkPer(['admin','special:edit','special:del'])" label="操作" width="150px" align="center">
           <template slot-scope="scope">
             <udOperation
               :data="scope.row"
@@ -85,28 +97,30 @@
 </template>
 
 <script>
-import crudSection from '@/api/system/section'
+import crudSpecial from '@/api/special'
 import CRUD, { presenter, header, form, crud } from '@crud/crud'
 import rrOperation from '@crud/RR.operation'
 import crudOperation from '@crud/CRUD.operation'
 import udOperation from '@crud/UD.operation'
 import pagination from '@crud/Pagination'
+import { mapGetters } from 'vuex'
+import crudUser from '@/api/system/user'
 
-const defaultForm = { id: null, name: null, url: null, icon: null, sort: null, createTime: null, createBy: null, updateTime: null, updateBy: null, enabled: null }
+const defaultForm = { id: null, name: null, cover: null, sort: null, enabled: 'false', createBy: null, updateBy: null, createTime: null, updateTime: null }
 export default {
-  name: 'Section',
+  name: 'Special',
   components: { pagination, crudOperation, rrOperation, udOperation },
   mixins: [presenter(), header(), form(defaultForm), crud()],
   dicts: ['user_status'],
   cruds() {
-    return CRUD({ title: '版块', url: 'api/section', idField: 'id', sort: ['sort,asc', 'id,desc'], crudMethod: { ...crudSection }})
+    return CRUD({ title: '专栏', url: 'api/special', idField: 'id', sort: ['sort,asc', 'id,desc'], crudMethod: { ...crudSpecial }})
   },
   data() {
     return {
       permission: {
-        add: ['admin', 'section:add'],
-        edit: ['admin', 'section:edit'],
-        del: ['admin', 'section:del']
+        add: ['admin', 'special:add'],
+        edit: ['admin', 'special:edit'],
+        del: ['admin', 'special:del']
       },
       enabledTypeOptions: [
         { key: 'true', display_name: '激活' },
@@ -116,14 +130,8 @@ export default {
         name: [
           { required: true, message: '名称不能为空', trigger: 'blur' }
         ],
-        url: [
-          { required: true, message: '跳转页面不能为空', trigger: 'blur' }
-        ],
-        icon: [
-          { required: true, message: '图标不能为空', trigger: 'blur' }
-        ],
-        enabled: [
-          { required: true, message: '状态不能为空', trigger: 'blur' }
+        cover: [
+          { required: true, message: '封面不能为空', trigger: 'blur' }
         ]
       },
       queryTypeOptions: [
@@ -132,6 +140,12 @@ export default {
       ]
     }
   },
+  computed: {
+    ...mapGetters([
+      'baseApi',
+      'fileUploadApi'
+    ])
+  },
   methods: {
     // 钩子：在获取表格数据之前执行，false 则代表不获取数据
     [CRUD.HOOK.beforeRefresh]() {
@@ -139,20 +153,16 @@ export default {
     },
     // 新增与编辑前做的操作
     [CRUD.HOOK.afterToCU](crud, form) {
-      if (form.id == null) {
-        form.enabled = false.toString()
-      } else {
-        form.enabled = form.enabled.toString()
-      }
+      form.enabled = form.enabled.toString()
     },
     // 改变状态
     changeEnabled(data, val) {
-      this.$confirm('此操作将 "' + this.dict.label.user_status[val] + '" ' + data.name + ', 是否继续？', '提示', {
+      this.$confirm('此操作将 "' + this.dict.label.user_status[val] + '" ' + data.username + ', 是否继续？', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        crudSection.edit(data).then(res => {
+        crudUser.edit(data).then(res => {
           this.crud.notify(this.dict.label.user_status[val] + '成功', CRUD.NOTIFICATION_TYPE.SUCCESS)
         }).catch(() => {
           data.enabled = !data.enabled

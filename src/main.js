@@ -9,6 +9,8 @@ import Element from 'element-ui'
 // 数据字典
 import dict from './components/Dict'
 
+import './views/tools/GlobalDrawer/global-drawer'
+
 // 权限指令
 import checkPer from '@/utils/permission'
 import permission from './components/Permission'

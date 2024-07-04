@@ -61,7 +61,7 @@ export default {
           'baseApi'
         ])
       },
-      editMode: 'simple',
+      editMode: 'defalut',
       editor: null,
       editValue: null
     }

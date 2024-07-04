@@ -2,7 +2,7 @@ import request from '@/utils/request'
 
 export function add(data) {
   return request({
-    url: 'api/article',
+    url: 'api/order',
     method: 'post',
     data
   })
@@ -10,7 +10,7 @@ export function add(data) {
 
 export function del(ids) {
   return request({
-    url: 'api/article/',
+    url: 'api/order/',
     method: 'delete',
     data: ids
   })
@@ -18,17 +18,10 @@ export function del(ids) {
 
 export function edit(data) {
   return request({
-    url: 'api/article/',
+    url: 'api/order',
     method: 'put',
     data
   })
 }
 
-export function detail(data) {
-  return request({
-    url: 'api/articleBody/' + data,
-    method: 'get'
-  })
-}
-
-export default { add, edit, del, detail }
+export default { add, edit, del }

@@ -2,7 +2,7 @@ import request from '@/utils/request'
 
 export function add(data) {
   return request({
-    url: 'api/localStorage',
+    url: 'api/special',
     method: 'post',
     data
   })
@@ -10,7 +10,7 @@ export function add(data) {
 
 export function del(ids) {
   return request({
-    url: 'api/localStorage/',
+    url: 'api/special/',
     method: 'delete',
     data: ids
   })
@@ -18,18 +18,18 @@ export function del(ids) {
 
 export function edit(data) {
   return request({
-    url: 'api/localStorage',
+    url: 'api/special',
     method: 'put',
     data
   })
 }
 
-export function find(data) {
+// 获取所有的Role
+export function getAll() {
   return request({
-    url: 'api/localStorage?page=' + data.page + '&size=' + data.size + '&type=' + data.type,
-    method: 'get',
-    data
+    url: 'api/special/all',
+    method: 'get'
   })
 }
 
-export default { add, edit, del, find }
+export default { add, edit, del, getAll }

@@ -5,6 +5,22 @@
       <div v-if="crud.props.searchToggle">
         <!-- 搜索 -->
         <el-input v-model="query.blurry" clearable size="small" placeholder="输入内容模糊搜索" style="width: 200px;" class="filter-item" @keyup.enter.native="crud.toQuery" />
+        <el-select
+          v-model="query.type"
+          clearable
+          size="small"
+          placeholder="类型"
+          class="filter-item"
+          style="width: 90px"
+          @change="crud.toQuery"
+        >
+          <el-option
+            v-for="item in types"
+            :key="item.value"
+            :label="item.name"
+            :value="item.value"
+          />
+        </el-select>
         <date-range-picker v-model="query.createTime" class="date-item" />
         <rrOperation />
       </div>
@@ -95,6 +111,18 @@
       <el-table-column prop="size" label="大小" />
       <el-table-column prop="operate" label="操作人" />
       <el-table-column prop="createTime" label="创建日期" />
+      <el-table-column label="操作" width="150px" align="center">
+        <template slot-scope="scope">
+          <el-button
+            class="filter-item"
+            size="mini"
+            type="primary"
+            icon="el-icon-share"
+            @click="copyImgUrl('file/' + scope.row.type + '/' + scope.row.realName,$event)"
+          >复制图片地址
+          </el-button>
+        </template>
+      </el-table-column>
     </el-table>
     <!--分页组件-->
     <pagination />
@@ -104,6 +132,7 @@
 <script>
 import { mapGetters } from 'vuex'
 import { getToken } from '@/utils/auth'
+import clipboard from '@/utils/clipboard'
 import crudFile from '@/api/tools/localStorage'
 import CRUD, { presenter, header, form, crud } from '@crud/crud'
 import rrOperation from '@crud/RR.operation'
@@ -120,6 +149,22 @@ export default {
   mixins: [presenter(), header(), form(defaultForm), crud()],
   data() {
     return {
+      types: [{
+        value: '图片',
+        label: '图片'
+      }, {
+        value: '文档',
+        label: '文档'
+      }, {
+        value: '音乐',
+        label: '音乐'
+      }, {
+        value: '视频',
+        label: '视频'
+      }, {
+        value: '其他',
+        label: '其他'
+      }],
       delAllLoading: false,
       loading: false,
       headers: { 'Authorization': getToken() },
@@ -169,6 +214,9 @@ export default {
         duration: 2500
       })
       this.loading = false
+    },
+    copyImgUrl(data, event) {
+      clipboard(data, event)
     }
   }
 }

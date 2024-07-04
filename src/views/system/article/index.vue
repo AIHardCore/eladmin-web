@@ -7,7 +7,7 @@
         <label class="el-form-item-label">标题</label>
         <el-input v-model="query.title" clearable placeholder="标题" style="width: 185px;" class="filter-item" @keyup.enter.native="crud.toQuery" />
         <label class="el-form-item-label">内容</label>
-        <el-input v-model="query.content" clearable placeholder="内容" style="width: 185px;" class="filter-item" @keyup.enter.native="crud.toQuery" />
+        <el-input v-model="query.body" clearable placeholder="内容" style="width: 185px;" class="filter-item" @keyup.enter.native="crud.toQuery" />
         <el-select
           v-model="query.enabled"
           clearable
@@ -25,17 +25,17 @@
           />
         </el-select>
         <el-select
-          v-model="query.section"
+          v-model="query.specials"
           clearable
           size="small"
-          placeholder="版块"
+          placeholder="专栏"
           class="filter-item"
           multiple
-          style="width: 150px"
+          style="width: 300px"
           @change="crud.toQuery"
         >
           <el-option
-            v-for="item in sections"
+            v-for="item in specials"
             :key="item.name"
             :label="item.name"
             :value="item.id"
@@ -48,21 +48,23 @@
       <!--表单组件-->
       <el-dialog :close-on-click-modal="false" :before-close="crud.cancelCU" :visible.sync="crud.status.cu > 0" :title="crud.status.title" @close="handleClose">
         <el-form ref="form" :model="form" :rules="rules" size="small" label-width="80px">
-          <el-form-item style="margin-bottom: 0;" label="版块" prop="section">
+          <el-form-item style="margin-bottom: 0;" label="专栏" prop="section">
             <el-select
-              v-model="form.section"
+              v-model="specialDatas"
               clearable
               size="small"
-              placeholder="版块"
+              multiple
+              placeholder="专栏"
               class="filter-item"
               style="width: 370px"
+              @remove-tag="deleteTag"
+              @change="handleSectionChange"
             >
               <el-option
-                v-for="item in sections"
+                v-for="item in specials"
                 :key="item.name"
                 :label="item.name"
-                :value="item"
-                @change="handleSectionChange"
+                :value="item.id"
               />
             </el-select>
           </el-form-item>
@@ -79,17 +81,17 @@
           </el-form-item>
           <el-form-item label="内容" prop="content">
             <el-row :gutter="10">
-              <wang-editor ref="contentRef" v-model="form.content" style="height: 500px; overflow-y: hidden;" />
+              <wang-editor ref="contentRef" v-model="form.body" style="height: 500px; overflow-y: hidden;" />
             </el-row>
           </el-form-item>
           <el-form-item label="状态" prop="enabled">
             <el-radio v-for="item in dict.user_status" :key="item.id" v-model="form.enabled" :label="item.value">{{ item.label }}</el-radio>
           </el-form-item>
           <el-form-item label="排序">
-            <el-input v-model="form.sort" style="width: 370px;" />
+            <el-input-number v-model="form.sort" controls-position="right" style="width: 150px;" />
           </el-form-item>
           <el-form-item label="阅读量">
-            <el-input v-model="form.reading" style="width: 370px;" />
+            <el-input-number v-model="form.reading" controls-position="right" :min="0" style="width: 150px;" />
           </el-form-item>
         </el-form>
         <div slot="footer" class="dialog-footer">
@@ -101,12 +103,21 @@
       <el-table ref="table" v-loading="crud.loading" :data="crud.data" size="small" style="width: 100%;" @selection-change="crud.selectionChangeHandler">
         <el-table-column type="selection" width="55" />
         <el-table-column prop="title" label="标题" />
-        <el-table-column prop="section" label="版块">
-          <template slot-scope="scope">
-            {{ scope.row.section.name }}
+        <el-table-column prop="cover" label="封面">
+          <template slot-scope="{row}">
+            <el-image
+              :src="row.cover"
+              :preview-src-list="[row.cover]"
+              fit="contain"
+              lazy
+              class="el-avatar"
+            >
+              <div slot="error">
+                <i class="el-icon-document" />
+              </div>
+            </el-image>
           </template>
         </el-table-column>
-        <el-table-column prop="cover" label="封面" />
         <el-table-column label="状态" align="center" prop="enabled">
           <template slot-scope="scope">
             <el-switch
@@ -137,16 +148,17 @@
 </template>
 
 <script>
-import crudArticle from '@/api/system/article'
-import { getAllSection } from '@/api/system/section'
+import crudArticle from '@/api/article'
+import { getAll } from '@/api/special'
 import CRUD, { presenter, header, form, crud } from '@crud/crud'
 import rrOperation from '@crud/RR.operation'
 import crudOperation from '@crud/CRUD.operation'
 import udOperation from '@crud/UD.operation'
 import pagination from '@crud/Pagination'
-import WangEditor from '@/components/WangEditor/index'
+import WangEditor from '@/components/WangEditor'
 
-const defaultForm = { id: null, sections: [], title: null, cover: null, preview: null, content: null, enabled: null, sort: null, reading: null, createTime: null, updateTime: null }
+let articleSpecials = []
+const defaultForm = { id: null, specials: [], title: null, cover: null, preview: null, body: null, enabled: 'false', sort: null, reading: null, createTime: null, updateTime: null }
 export default {
   name: 'Article',
   components: { pagination, crudOperation, rrOperation, udOperation, WangEditor },
@@ -157,7 +169,7 @@ export default {
   },
   data() {
     return {
-      sections: [], articleBody: '',
+      specials: [], articleBody: '', specialDatas: [],
       permission: {
         add: ['admin', 'article:add'],
         edit: ['admin', 'article:edit'],
@@ -168,9 +180,6 @@ export default {
         { key: 'false', display_name: '锁定' }
       ],
       rules: {
-        section: [
-          { required: true, message: '请选择版块', trigger: 'blur' }
-        ],
         title: [
           { required: true, message: '标题不能为空', trigger: 'blur' }
         ],
@@ -180,7 +189,7 @@ export default {
         preview: [
           { required: true, message: '预览内容不能为空', trigger: 'blur' }
         ],
-        content: [
+        body: [
           { required: true, message: '内容不能为空', trigger: 'blur' }
         ],
         enabled: [
@@ -189,8 +198,7 @@ export default {
       },
       queryTypeOptions: [
         { key: 'title', display_name: '标题' },
-        { key: 'content', display_name: '内容' },
-        { key: 'section', display_name: '版块' },
+        { key: 'body', display_name: '内容' },
         { key: 'enabled', display_name: '状态' }
       ]
     }
@@ -198,35 +206,46 @@ export default {
   methods: {
     // 钩子：在获取表格数据之前执行，false 则代表不获取数据
     [CRUD.HOOK.beforeRefresh]() {
-      this.getSections()
+      this.getSpecials()
       return true
     },
     // 新增与编辑前做的操作
     [CRUD.HOOK.afterToCU](crud, form) {
-      if (form.id == null) {
-        form.enabled = 'false'
-      } else {
+      // this.showDrawer()
+      if (form.id != null) {
         this.getArticleBody(form.id)
         this.$refs.previewRef.setText(form.preview)
       }
       form.enabled = form.enabled.toString()
     },
-    // 新增前将默认选中第一个版块
-    [CRUD.HOOK.beforeToAdd](crud, form) {
-      this.getSections()
-      // form.section = this.sections[0]
+    // 新增前将多选的值设置为空
+    [CRUD.HOOK.beforeToAdd]() {
+      this.specialDatas = []
     },
-    // 初始化编辑时候的版块
+    // 初始化编辑时候的角色与岗位
     [CRUD.HOOK.beforeToEdit](crud, form) {
+      articleSpecials = []
+      this.specialDatas = []
+      const _this = this
+      form.specials.forEach(function(special, index) {
+        _this.specialDatas.push(special.id)
+        const spe = { id: special.id }
+        articleSpecials.push(spe)
+      })
     },
-    getSections() {
-      getAllSection().then(res => {
-        this.sections = res.content
+    // 提交前做的操作
+    [CRUD.HOOK.afterValidateCU](crud) {
+      crud.form.specials = articleSpecials
+      return true
+    },
+    getSpecials() {
+      getAll().then(res => {
+        this.specials = res
       }).catch(() => { })
     },
     getArticleBody(id) {
       crudArticle.detail(id).then(res => {
-        this.$refs.contentRef.setText(res.content)
+        this.$refs.contentRef.setText(res.body)
       }).catch(() => { })
     },
     // 改变状态
@@ -246,11 +265,26 @@ export default {
       })
     },
     handleSectionChange(value) {
-      console.log(value)
+      debugger
+      articleSpecials = []
+      value.forEach(function(data, index) {
+        const special = { id: data }
+        articleSpecials.push(special)
+      })
+    },
+    deleteTag(value) {
+      articleSpecials.forEach(function(data, index) {
+        if (data.id === value) {
+          articleSpecials.splice(index, value)
+        }
+      })
     },
     handleClose() {
       this.$refs.previewRef.clearContent()
       this.$refs.contentRef.clearContent()
+    },
+    showDrawer() {
+      this.$showGlobalDrawer()
     }
   }
 }
