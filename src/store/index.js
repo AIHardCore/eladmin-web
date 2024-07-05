@@ -18,6 +18,7 @@ const modules = modulesFiles.keys().reduce((modules, modulePath) => {
 }, {})
 
 const store = new Vuex.Store({
+  special: null,
   modules,
   getters
 })

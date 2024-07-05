@@ -26,6 +26,12 @@ import router from './router/routers'
 import './assets/icons' // icon
 import './router/index' // permission control
 
+// 导入Vant2
+import Vant, { Lazyload } from 'vant'
+import 'vant/lib/index.css'
+
+Vue.use(Vant)
+Vue.use(Lazyload)
 Vue.use(checkPer)
 Vue.use(permission)
 Vue.use(dict)

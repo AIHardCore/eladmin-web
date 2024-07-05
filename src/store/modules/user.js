@@ -57,6 +57,7 @@ const user = {
     // 登出
     LogOut({ commit }) {
       return new Promise((resolve, reject) => {
+        console.log(11111)
         logout().then(res => {
           logOut(commit)
           resolve()

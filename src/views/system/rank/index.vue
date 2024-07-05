@@ -35,7 +35,7 @@
           <el-form-item label="文章" prop="article">
             <template>
               <el-select
-                v-model="articleId"
+                v-model="form.articleId"
                 filterable
                 remote
                 reserve-keyword
@@ -100,7 +100,7 @@ import udOperation from '@crud/UD.operation'
 import pagination from '@crud/Pagination'
 import crudArticle from '@/api/article'
 
-const defaultForm = { id: null, type: 0, article: null, sort: null, createBy: null, updateBy: null, createTime: null, updateTime: null }
+const defaultForm = { id: null, type: 0, article: null, articleId: null, sort: null, createBy: null, updateBy: null, createTime: null, updateTime: null }
 export default {
   name: 'Rank',
   components: { pagination, crudOperation, rrOperation, udOperation },
@@ -111,7 +111,6 @@ export default {
   },
   data() {
     return {
-      articleId: null,
       options: [],
       list: [],
       loading: false,
@@ -129,7 +128,7 @@ export default {
         type: [
           { required: true, message: '榜单类型不能为空', trigger: 'blur' }
         ],
-        article: [
+        articleId: [
           { required: true, message: '文章id不能为空', trigger: 'blur' }
         ],
         sort: [
@@ -169,7 +168,7 @@ export default {
     },
     // 提交前做的操作
     [CRUD.HOOK.afterValidateCU](crud) {
-      crud.form.article = { id: this.articleId }
+      crud.form.article = { id: crud.form.articleId }
       return true
     },
     getFirstArticlePage() {

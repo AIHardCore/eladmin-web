@@ -34,6 +34,13 @@ module.exports = {
           '^/api': 'api'
         }
       },
+      '/app': {
+        target: 'http://localhost:8001',
+        changeOrigin: true,
+        pathRewrite: {
+          '^/app': 'app'
+        }
+      },
       '/auth': {
         target: process.env.VUE_APP_BASE_API,
         changeOrigin: true,

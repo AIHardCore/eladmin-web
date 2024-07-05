@@ -28,6 +28,7 @@ export function getCodeImg() {
 }
 
 export function logout() {
+  console.log(22222)
   return request({
     url: 'auth/logout',
     method: 'delete'
