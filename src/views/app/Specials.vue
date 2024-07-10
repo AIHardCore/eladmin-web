@@ -1,6 +1,6 @@
 <template>
   <div class="special-container">
-    <ul style="padding-bottom: 55px;">
+    <ul>
       <li v-for="item of list" :key="item.id">
         <div @click="openSpecial(item.id)">
           <div>
@@ -62,7 +62,7 @@ export default {
 
 <style scoped>
 .special-container {
-  padding:0px 15px;
+  padding:1px 15px;
 }
 .special_name {
   text-align: left;
@@ -76,5 +76,4 @@ export default {
   font-size: 15px;
   color: white;
 }
-
 </style>

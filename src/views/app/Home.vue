@@ -1,124 +1,131 @@
 <template>
-  <van-pull-refresh v-model="refreshing" @refresh="onRefresh">
-    <div class="home">
-      <!-- 轮播图 -->
-      <van-swipe :autoplay="3000">
-        <van-swipe-item v-for="(item, index) in banners" :key="index" stop-propagation="false" @click="openSpecial(item.special)">
-          <van-image lazy-load :src="item.img" width="100%" height="250px" fit="fill" />
-        </van-swipe-item>
-      </van-swipe>
-      <!-- /轮播图 -->
-      <!--        <van-grid :border="false" :column-num="3">
-                <van-grid-item v-for="special of specials" :key="special.id">
-                  <van-button
-                      round block type="info"
-                      @click="openSpecial(special.id)"
-                      to=""
-                      size="small"
-                      style="padding: 0px"
-                  >
-                    {{special.name}}
-                  </van-button>
-                </van-grid-item>
-              </van-grid>-->
-      <!-- 专栏列表 -->
-      <div style="padding-bottom: 5px">
-        <van-row type="flex" justify="space-around">
-          <van-col span="7">
-            <van-button
-              round
-              block
-              type="info"
-              to=""
-              size="small"
-              style="padding: 0px"
-              @click="openSpecial(specials[0].id)"
-            >
-              {{ specials[1].name }}
-            </van-button>
-          </van-col>
-          <van-col span="7">
-            <van-button
-              round
-              block
-              type="info"
-              to=""
-              size="small"
-              style="padding: 0px"
-              @click="openSpecial(specials[0].id)"
-            >
-              {{ specials[1].name }}
-            </van-button>
-          </van-col>
-          <van-col span="7">
-            <van-button
-              round
-              block
-              type="info"
-              to=""
-              size="small"
-              style="padding: 0px"
-              @click="openSpecial(specials[0].id)"
-            >
-              {{ specials[1].name }}
-            </van-button>
-          </van-col>
-        </van-row>
+  <div class="home">
+    <van-overlay :show="show" @click="show = false">
+      <div class="wrapper" @click.stop>
+        <van-loading type="spinner" color="#0094ff" />
       </div>
-      <div>
-        <van-row type="flex" justify="space-around">
-          <van-col span="7">
-            <van-button
-              round
-              block
-              type="info"
-              to=""
-              size="small"
-              style="padding: 0px"
-              @click="openSpecial(specials[0].id)"
-            >
-              {{ specials[1].name }}
-            </van-button>
-          </van-col>
-          <van-col span="7">
-            <van-button
-              round
-              block
-              type="info"
-              to=""
-              size="small"
-              style="padding: 0px"
-              @click="openSpecial(specials[0].id)"
-            >
-              {{ specials[1].name }}
-            </van-button>
-          </van-col>
-          <van-col span="7">
-            <van-button
-              round
-              block
-              type="info"
-              to=""
-              size="small"
-              style="padding: 0px"
-              @click="openSpecial(specials[0].id)"
-            >
-              {{ specials[1].name }}
-            </van-button>
-          </van-col>
-        </van-row>
-      </div>
-      <van-divider dashed />
-      <!-- /专栏列表 -->
+    </van-overlay>
+    <!-- 轮播图 -->
+    <van-swipe :autoplay="3000">
+      <van-swipe-item v-for="(item, index) in banners" :key="index" stop-propagation="false" @click="openSpecial(item.special)">
+        <van-image lazy-load :src="item.img" width="100%" height="250px" fit="fill" />
+      </van-swipe-item>
+    </van-swipe>
+    <!-- /轮播图 -->
+    <!--        <van-grid :border="false" :column-num="3">
+              <van-grid-item v-for="special of specials" :key="special.id">
+                <van-button
+                    round block type="info"
+                    @click="openSpecial(special.id)"
+                    to=""
+                    size="small"
+                    style="padding: 0px"
+                >
+                  {{special.name}}
+                </van-button>
+              </van-grid-item>
+            </van-grid>-->
+    <!-- 专栏列表 -->
+    <div style="padding-bottom: 5px">
+      <van-row type="flex" justify="space-around">
+        <van-col span="7">
+          <van-button
+            round
+            block
+            type="info"
+            to=""
+            size="small"
+            style="padding: 0px"
+            @click="openSpecial(specials[0].id)"
+          >
+            {{ specials[1].name }}
+          </van-button>
+        </van-col>
+        <van-col span="7">
+          <van-button
+            round
+            block
+            type="info"
+            to=""
+            size="small"
+            style="padding: 0px"
+            @click="openSpecial(specials[0].id)"
+          >
+            {{ specials[1].name }}
+          </van-button>
+        </van-col>
+        <van-col span="7">
+          <van-button
+            round
+            block
+            type="info"
+            to=""
+            size="small"
+            style="padding: 0px"
+            @click="openSpecial(specials[0].id)"
+          >
+            {{ specials[1].name }}
+          </van-button>
+        </van-col>
+      </van-row>
+    </div>
+    <div>
+      <van-row type="flex" justify="space-around">
+        <van-col span="7">
+          <van-button
+            round
+            block
+            type="info"
+            to=""
+            size="small"
+            style="padding: 0px"
+            @click="openSpecial(specials[0].id)"
+          >
+            {{ specials[1].name }}
+          </van-button>
+        </van-col>
+        <van-col span="7">
+          <van-button
+            round
+            block
+            type="info"
+            to=""
+            size="small"
+            style="padding: 0px"
+            @click="openSpecial(specials[0].id)"
+          >
+            {{ specials[1].name }}
+          </van-button>
+        </van-col>
+        <van-col span="7">
+          <van-button
+            round
+            block
+            type="info"
+            to=""
+            size="small"
+            style="padding: 0px"
+            @click="openSpecial(specials[0].id)"
+          >
+            {{ specials[1].name }}
+          </van-button>
+        </van-col>
+      </van-row>
+    </div>
+    <van-divider dashed />
+    <!-- /专栏列表 -->
+    <van-pull-refresh v-model="refreshing" @refresh="onRefresh">
       <!-- 文章列表 -->
       <van-list
         v-model="loading"
         class="list"
         :finished="finished"
-        finished-text="没有更多了"
         offset="50"
         @load="onLoad"
       >
+        <template slot="finished">
+          <span style="text-align: center;color: white;width: 100%;">没有更多了...</span>
+        </template>
         <van-card
           v-for="item in list"
           :key="item.id"
@@ -142,29 +149,33 @@
           </template>
         </van-card>
       </van-list>
-      <!-- /文章列表 -->
-    </div>
-  </van-pull-refresh>
+    </van-pull-refresh>
+    <!-- /文章列表 -->
+  </div>
 </template>
 
 <script>
 import crudArticle from '@/api/app/article'
 import crudBanner from '@/api/app/banner'
+import img from '@/assets/images/app/default_img.png'
 
 export default {
   name: 'HomePage',
   data() {
     return {
       i: 0,
+      show: true,
       specials: [
-        { id: 1, name: '密宗' + 1 },
-        { id: 2, name: '密宗' + 1 },
-        { id: 3, name: '密宗' + 1 },
-        { id: 4, name: '密宗' + 1 },
-        { id: 5, name: '密宗' + 1 },
-        { id: 6, name: '密宗' + 1 }
+        { id: 1, name: '神秘学' },
+        { id: 2, name: '神秘学' },
+        { id: 3, name: '神秘学' },
+        { id: 4, name: '神秘学' },
+        { id: 5, name: '神秘学' },
+        { id: 6, name: '神秘学' }
       ],
-      banners: [],
+      banners: [
+        { img: img }
+      ],
       list: [],
       loading: false,
       finished: false,
@@ -183,6 +194,12 @@ export default {
   },
   methods: {
     onLoad() {
+      if (this.refreshing) {
+        this.list = []
+        this.refreshing = false
+        this.page.page = 0
+        this.page.sortStr = ''
+      }
       // 异步更新数据
       crudArticle.list(this.page).then(res => {
         if (res.content.length === 0) {
@@ -193,6 +210,7 @@ export default {
         }
         // 加载状态结束
         this.loading = false
+        this.show = false
         this.page.page++
         this.page.sortStr = ''
       }).catch(() => { })
@@ -204,6 +222,7 @@ export default {
       // 重新加载数据
       // 将 loading 设置为 true，表示处于加载状态
       this.loading = true
+      this.show = true
       this.onLoad()
     },
     getBanners() {
@@ -234,9 +253,21 @@ export default {
 
 <style scoped>
 .list {
-  padding-bottom: 70px;
 }
 .bgr {
   background: rgba(0, 0, 0, 0);
+}
+
+.wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+.block {
+  width: 120px;
+  height: 120px;
+  background-color: #fff;
 }
 </style>

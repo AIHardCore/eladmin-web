@@ -46,7 +46,7 @@
       <!--如果想在工具栏加入更多按钮，可以使用插槽方式， slot = 'left' or 'right'-->
       <crudOperation :permission="permission" />
       <!--表单组件-->
-      <el-dialog :close-on-click-modal="false" :before-close="crud.cancelCU" :visible.sync="crud.status.cu > 0" :title="crud.status.title" @close="handleClose">
+      <el-dialog :close-on-click-modal="false" :before-close="crud.cancelCU" :visible.sync="crud.status.cu > 0" :title="crud.status.title">
         <el-form ref="form" :model="form" :rules="rules" size="small" label-width="80px">
           <el-form-item style="margin-bottom: 0;" label="专栏" prop="section">
             <el-select
@@ -73,15 +73,27 @@
           </el-form-item>
           <el-form-item label="封面" prop="cover">
             <el-input v-model="form.cover" style="width: 370px;" />
+            <el-image
+              :src="form.cover"
+              :preview-src-list="[form.cover]"
+              fit="contain"
+              lazy
+              class="el-avatar"
+            >
+              <div slot="error">
+                <i class="el-icon-document" />
+              </div>
+            </el-image>
+            <el-button icon="el-icon-connection" @click="showDrawer">选择</el-button>
           </el-form-item>
-          <el-form-item label="预览内容" prop="preview">
+          <el-form-item label="预览" prop="preview">
             <el-row :gutter="10">
-              <wang-editor ref="previewRef" v-model="form.preview" style="height: 500px; overflow-y: hidden;" />
+              <wang-editor :key="previewKey" v-model="form.preview" style="height: 500px; overflow-y: hidden;" />
             </el-row>
           </el-form-item>
           <el-form-item label="内容" prop="content">
             <el-row :gutter="10">
-              <wang-editor ref="contentRef" v-model="form.body" style="height: 500px; overflow-y: hidden;" />
+              <wang-editor :key="bodyKey" v-model="form.body" style="height: 500px; overflow-y: hidden;" />
             </el-row>
           </el-form-item>
           <el-form-item label="状态" prop="enabled">
@@ -158,7 +170,7 @@ import pagination from '@crud/Pagination'
 import WangEditor from '@/components/WangEditor'
 
 let articleSpecials = []
-const defaultForm = { id: null, specials: [], title: null, cover: null, preview: null, body: null, enabled: 'false', sort: null, reading: null, createTime: null, updateTime: null }
+const defaultForm = { id: null, specials: [], title: null, cover: null, preview: '', body: '', enabled: 'false', sort: null, reading: null, createTime: null, updateTime: null }
 export default {
   name: 'Article',
   components: { pagination, crudOperation, rrOperation, udOperation, WangEditor },
@@ -169,7 +181,7 @@ export default {
   },
   data() {
     return {
-      specials: [], articleBody: '', specialDatas: [],
+      specials: [], bodyKey: 2, previewKey: 1, specialDatas: [],
       permission: {
         add: ['admin', 'article:add'],
         edit: ['admin', 'article:edit'],
@@ -213,14 +225,18 @@ export default {
     [CRUD.HOOK.afterToCU](crud, form) {
       // this.showDrawer()
       if (form.id != null) {
-        this.getArticleBody(form.id)
-        this.$refs.previewRef.setText(form.preview)
+        this.getArticleBody(form)
       }
+      this.previewKey--
       form.enabled = form.enabled.toString()
     },
     // 新增前将多选的值设置为空
     [CRUD.HOOK.beforeToAdd]() {
       this.specialDatas = []
+      this.crud.form.body = ''
+      this.crud.form.preview = ''
+      this.bodyKey++
+      this.previewKey--
     },
     // 初始化编辑时候的角色与岗位
     [CRUD.HOOK.beforeToEdit](crud, form) {
@@ -236,6 +252,7 @@ export default {
     // 提交前做的操作
     [CRUD.HOOK.afterValidateCU](crud) {
       crud.form.specials = articleSpecials
+      crud.form.cover = this.cover
       return true
     },
     getSpecials() {
@@ -243,9 +260,10 @@ export default {
         this.specials = res
       }).catch(() => { })
     },
-    getArticleBody(id) {
-      crudArticle.detail(id).then(res => {
-        this.$refs.contentRef.setText(res.body)
+    getArticleBody(form) {
+      crudArticle.detail(form.id).then(res => {
+        this.crud.form.body = res.body
+        this.bodyKey++
       }).catch(() => { })
     },
     // 改变状态
@@ -265,7 +283,6 @@ export default {
       })
     },
     handleSectionChange(value) {
-      debugger
       articleSpecials = []
       value.forEach(function(data, index) {
         const special = { id: data }
@@ -279,12 +296,15 @@ export default {
         }
       })
     },
-    handleClose() {
-      this.$refs.previewRef.clearContent()
-      this.$refs.contentRef.clearContent()
-    },
     showDrawer() {
-      this.$showGlobalDrawer()
+      this.$showGlobalDrawer(
+        {
+          url: this.crud.form.cover
+        },
+        (result) => {
+          this.crud.form.cover = result.data.url
+        }
+      )
     }
   }
 }

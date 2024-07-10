@@ -36,7 +36,19 @@
       <el-dialog :close-on-click-modal="false" :before-close="crud.cancelCU" :visible.sync="crud.status.cu > 0" :title="crud.status.title" width="500px">
         <el-form ref="form" :model="form" :rules="rules" size="small" label-width="80px">
           <el-form-item label="图片" prop="img">
-            <el-input v-model="form.img" style="width: 370px;" />
+            <el-input v-model="form.img" style="width: 250px;" />
+            <el-image
+              :src="form.img"
+              :preview-src-list="[form.img]"
+              fit="contain"
+              lazy
+              class="el-avatar"
+            >
+              <div slot="error">
+                <i class="el-icon-document" />
+              </div>
+            </el-image>
+            <el-button icon="el-icon-connection" @click="showDrawer">选择</el-button>
           </el-form-item>
           <el-form-item label="专栏">
             <el-select
@@ -224,6 +236,16 @@ export default {
       }).catch(() => {
         data.enabled = !data.enabled
       })
+    },
+    showDrawer() {
+      this.$showGlobalDrawer(
+        {
+          url: this.crud.form.img
+        },
+        (result) => {
+          this.crud.form.img = result.data.url
+        }
+      )
     }
   }
 }

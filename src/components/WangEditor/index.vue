@@ -63,7 +63,7 @@ export default {
       },
       editMode: 'defalut',
       editor: null,
-      editValue: null
+      editValue: ''
     }
   },
   watch: {

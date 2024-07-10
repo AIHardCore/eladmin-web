@@ -2,7 +2,7 @@ import axios from 'axios'
 import router from '@/router/routers'
 import { Notification } from 'element-ui'
 import store from '../store'
-import { getToken } from '@/utils/auth'
+import { getAppToken, getToken } from '@/utils/auth'
 import Config from '@/settings'
 import Cookies from 'js-cookie'
 
@@ -15,6 +15,9 @@ const service = axios.create({
 // request拦截器
 service.interceptors.request.use(
   config => {
+    if (getAppToken()) {
+      config.headers['Token'] = getAppToken() // 让每个请求携带自定义token 请根据实际情况自行修改
+    }
     if (getToken()) {
       config.headers['Authorization'] = getToken() // 让每个请求携带自定义token 请根据实际情况自行修改
     }
@@ -66,6 +69,8 @@ service.interceptors.response.use(
           })
         } else if (code === 403) {
           router.push({ path: '/401' })
+        } else if (code === 1001) { // App端未登录，跳转到微信授权页面
+          window.open(error.response.data.message, '_self')
         } else {
           const errorMsg = error.response.data.message
           if (errorMsg !== undefined) {

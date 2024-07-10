@@ -163,7 +163,7 @@ export default {
           // to reload home page
           this.$router.replace({ path: '/redirect' + view.fullPath })
         } else {
-          this.$router.push('/')
+          this.$router.push('/dashboard')
         }
       }
     },

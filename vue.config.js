@@ -35,7 +35,7 @@ module.exports = {
         }
       },
       '/app': {
-        target: 'http://localhost:8001',
+        target: process.env.VUE_APP_BASE_APP_API,
         changeOrigin: true,
         pathRewrite: {
           '^/app': 'app'

@@ -52,7 +52,6 @@ export default {
   },
   methods: {
     onSearch(val) {
-      console.log('搜索内容：' + this.searchText)
       this.$router.push({
         path: '/Result', query: { key: this.searchText }
       })

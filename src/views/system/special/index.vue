@@ -36,7 +36,19 @@
             <el-input v-model="form.desc" style="width: 370px;" />
           </el-form-item>
           <el-form-item label="封面" prop="cover">
-            <el-input v-model="form.cover" style="width: 370px;" />
+            <el-input v-model="form.cover" style="width: 250px;" />
+            <el-image
+              :src="form.cover"
+              :preview-src-list="[form.cover]"
+              fit="contain"
+              class="el-avatar"
+              lazy=""
+            >
+              <div slot="error">
+                <i class="el-icon-document" />
+              </div>
+            </el-image>
+            <el-button icon="el-icon-connection" @click="showDrawer">选择</el-button>
           </el-form-item>
           <el-form-item label="排序">
             <el-input v-model="form.sort" style="width: 370px;" />
@@ -170,6 +182,16 @@ export default {
       }).catch(() => {
         data.enabled = !data.enabled
       })
+    },
+    showDrawer() {
+      this.$showGlobalDrawer(
+        {
+          url: this.crud.form.cover
+        },
+        (result) => {
+          this.crud.form.cover = result.data.url
+        }
+      )
     }
   }
 }

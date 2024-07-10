@@ -3,7 +3,7 @@
     <div>
       <van-image lazy-load :src="special.cover" width="100%" height="250px" fit="fill" />
     </div>
-    <div style="margin-top: 30px;padding-bottom: 40px;">
+    <div style="margin-top: 30px;">
       <van-list
         v-model="loading"
         :finished="finished"

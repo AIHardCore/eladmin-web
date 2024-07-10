@@ -67,10 +67,8 @@ export default {
       curdRank.page(type).then(res => {
         this.list = []
         res.content.forEach((item, index) => {
-          console.log(this.list)
           this.list.push({ id: item.article.id, img: this.images[index], text: item.article.title })
         })
-        console.log(this.list)
       }).catch(() => { })
     },
     changeType(data) {

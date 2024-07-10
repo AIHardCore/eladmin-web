@@ -13,11 +13,11 @@
           </div>
         </template>
         <template #thumb>
-          <van-image round width="80" height="80" :src="member.avater" />
+          <van-image round width="80" height="80" :src="member.headImgUrl" />
         </template>
       </van-card>
     </div>
-    <div v-show="!showVip" class="buyVip">
+    <div v-show="showProduce" class="buyVip">
       <div style="padding: 0px 10px;">
         <div>
           <div style="text-align: left; padding: 10px 0px 10px 10px;">会员升级</div>
@@ -43,13 +43,13 @@
         </div>
       </div>
       <div class="fixed-top">
-        <van-button color="red" block style="border-radius: 5px ;"><span style="color: white">立即以 {{ currProduce.price }} 元开通</span></van-button>
+        <van-button color="red" block style="border-radius: 5px ;" @click="buyVip"><span style="color: white">立即以 {{ currProduce.price }} 元开通</span></van-button>
       </div>
     </div>
-    <div v-show="showVip" class="my">
+    <div v-show="showDesc" class="my">
       <p>修仙界</p>
       <p>每周二、四晚上10点准时更新</p>
-      <div class="">
+      <div v-show="toBuyVip" class="">
         <van-button color="red" block style="border-radius: 5px ;" @click="showBuyVip">立即解锁”修仙界“会员资格</van-button>
       </div>
     </div>
@@ -58,6 +58,9 @@
 
 <script>
 import crudMy from '@/api/app/my'
+import crudOrder from '@/api/app/order'
+import wx from 'weixin-js-sdk'
+import avatar from '@/assets/images/avatar.png'
 
 export default {
   name: 'MyPage',
@@ -65,7 +68,9 @@ export default {
   props: {},
   data() {
     return {
-      showVip: true,
+      showDesc: true,
+      showProduce: false,
+      toBuyVip: false,
       currProduce: {
         id: 1,
         desc: '6个月',
@@ -74,10 +79,9 @@ export default {
         vipExpiration: '2025.01.01 23:59:59'
       },
       member: {
-        id: 1,
-        avater: 'https://img01.yzcdn.cn/vant/cat.jpeg',
-        nickName: 'HardCoer',
-        vipExpiration: '2025.01.01 23:59:59'
+        headImgUrl: avatar,
+        nickName: '用户昵称',
+        vipExpiration: '无'
       },
       produces: [
         {
@@ -113,24 +117,87 @@ export default {
   },
   computed: {},
   watch: {
+    member(val) {
+      this.toBuyVip = !val.type
+    }
   },
   created() {
-  },
-  mounted() {
-    this.$store.state.path = this.$route.path
-    console.log(this.$store.state.path)
+    this.getInfo()
   },
   methods: {
     selectOne(data) {
       this.currProduce = this.produces[data]
     },
     showBuyVip() {
-      this.showVip = !this.showVip
+      this.showDesc = !this.showDesc
+      this.showProduce = !this.showDesc
     },
     getInfo() {
-      crudMy.info(this.id).then(res => {
-        this.article = res
-      }).catch(() => { })
+      crudMy.info().then(res => {
+        this.member = res
+      }).catch(() => {
+      })
+    },
+    buyVip() {
+      this.buyText = '支付中...'
+      const data = {
+        amount: 20000
+      }
+      crudOrder.create(data).then(res => {
+        this.wxPay(res)
+      }).catch(() => {
+      })
+    },
+    wxPay(res) {
+      if (res.status === 200) {
+        if (res.data.code) {
+          this.$message.warning(res.data.msg)
+        } else {
+          // 调起微信支付
+          const that = this
+          const { appId, nonceStr, timeStamp, paySign, signType } = res
+          const prepayId = res.packageVal
+          wx.config({
+            debug: false, // 测试阶段可用 true 打包返回给后台用 false
+            appId: appId,
+            timestamp: timeStamp,
+            nonceStr: nonceStr,
+            signature: paySign,
+            jsApiList: ['chooseWXPay']
+          })
+          wx.ready(function() {
+            wx.chooseWXPay({
+              appId: appId,
+              timestamp: timeStamp, // 时间戳
+              nonceStr: nonceStr, // 随机字符串
+              package: prepayId, // 统一支付接口返回的prepay_id参数值
+              signType: signType, //  签名方式，默认为'SHA1'，使用新版支付需传入'MD5'
+              paySign: paySign, // 支付签名
+              success: function(res) {
+                this.handleClose()
+                that.Toast('支付成功')
+                this.$message.success('支付成功')
+                setTimeout(() => {
+                  location.reload()
+                  this.$router.go(0)
+                }, 2000)
+              },
+              cancel: function(res) {
+                that.Toast('支付取消')
+                this.$message.warning('支付取消')
+              },
+              fail: function(res) {
+                that.Toast('支付失败')
+                this.$message.error('支付失败')
+              }
+            })
+          })
+        }
+      } else if (res.status === 50001) {
+        this.$router.push('/auth')
+      } else {
+        this.$message.warning(res.msg)
+      }
     }
   }
 }
@@ -139,7 +206,12 @@ export default {
 <style scoped>
 
 .my {
+  height: 200px;
   padding: 0px 30px;
+}
+
+.buyVip {
+  height: 300px;
 }
 
 .fixed-top {

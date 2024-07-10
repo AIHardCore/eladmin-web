@@ -1,8 +1,8 @@
 import request from '@/utils/request'
 
-export function info(data) {
+export function info() {
   return request({
-    url: 'app/member/' + data,
+    url: 'app/auth/info',
     method: 'get'
   })
 }

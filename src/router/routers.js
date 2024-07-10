@@ -33,10 +33,15 @@ export const constantRouterMap = [
   },
   {
     path: '/',
-    redirect: '/Home',
+    redirect: '/Auth',
     component: () => import('@/layout/app/index'),
     hidden: true,
     children: [
+      {
+        path: 'Auth', // 授权检查
+        name: 'Auth',
+        component: () => import('@/views/app/Auth')
+      },
       {
         path: 'Home', // 默认子路由
         name: 'Home',
