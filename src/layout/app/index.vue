@@ -11,26 +11,20 @@
         route: 开启路由模式
        -->
       <van-tabbar v-model="active" route>
-        <van-tabbar-item v-show="false" to="/Auth">
-          <span>首页</span>
-          <template #icon="props">
-            <img :src="props.active ? icon.active : icon.inactive">
-          </template>
-        </van-tabbar-item>
         <van-tabbar-item to="/Home">
-          <span>首页</span>
+          <span>道学</span>
           <template #icon="props">
             <img :src="props.active ? icon.active : icon.inactive">
           </template>
         </van-tabbar-item>
         <van-tabbar-item to="/Rank">
-          <span>爆文榜</span>
+          <span>古科学</span>
           <template #icon="props">
             <img :src="props.active ? icon.active : icon.inactive">
           </template>
         </van-tabbar-item>
         <van-tabbar-item to="/Specials">
-          <span>神秘学</span>
+          <span>内丹学</span>
           <template #icon="props">
             <img :src="props.active ? icon.active : icon.inactive">
           </template>
@@ -46,8 +40,8 @@
     </div>
     <div style="height: 80px;background-color: white">
       <p style="background:none;height: 5%;width: 100%;text-align: center;font-size: 40%;">
-        © 2024-2025 HardCore <a href="http://www.apache.org/licenses/LICENSE-2.0" target="_blank">Apache License 2.0</a> ⋅
-        <a href="https://beian.miit.gov.cn/#/Integrated/index" target="_blank">备案号</a>
+        © 2024 修真界 ⋅
+        <a href="https://beian.miit.gov.cn/#/Integrated/index" target="_blank">粤ICP备2024280196</a>
       </p>
     </div>
   </div>

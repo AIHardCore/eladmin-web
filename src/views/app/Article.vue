@@ -13,7 +13,7 @@
         <span>看更多精彩内容可升级包年会员，海量解密文章每周二、四更新</span>
       </div>
       <div>
-        <van-button color="red" block to="/My">立即解锁”修仙界“会员资格</van-button>
+        <van-button color="red" block to="/My">立即进入”修真界“</van-button>
       </div>
     </div>
   </div>
@@ -44,7 +44,7 @@ export default {
   created() {},
   mounted() {
     this.$emit('to', this.$route.path)
-    Watermark.set({ text: '修仙界', time: null })
+    Watermark.set({ text: '修真界', time: null })
     this.onLoad()
   },
   methods: {

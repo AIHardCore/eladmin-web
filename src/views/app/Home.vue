@@ -12,108 +12,12 @@
       </van-swipe-item>
     </van-swipe>
     <!-- /轮播图 -->
-    <!--        <van-grid :border="false" :column-num="3">
-              <van-grid-item v-for="special of specials" :key="special.id">
-                <van-button
-                    round block type="info"
-                    @click="openSpecial(special.id)"
-                    to=""
-                    size="small"
-                    style="padding: 0px"
-                >
-                  {{special.name}}
-                </van-button>
-              </van-grid-item>
-            </van-grid>-->
-    <!-- 专栏列表 -->
-    <div style="padding-bottom: 5px">
-      <van-row type="flex" justify="space-around">
-        <van-col span="7">
-          <van-button
-            round
-            block
-            type="info"
-            to=""
-            size="small"
-            style="padding: 0px"
-            @click="openSpecial(specials[0].id)"
-          >
-            {{ specials[1].name }}
-          </van-button>
-        </van-col>
-        <van-col span="7">
-          <van-button
-            round
-            block
-            type="info"
-            to=""
-            size="small"
-            style="padding: 0px"
-            @click="openSpecial(specials[0].id)"
-          >
-            {{ specials[1].name }}
-          </van-button>
-        </van-col>
-        <van-col span="7">
-          <van-button
-            round
-            block
-            type="info"
-            to=""
-            size="small"
-            style="padding: 0px"
-            @click="openSpecial(specials[0].id)"
-          >
-            {{ specials[1].name }}
-          </van-button>
-        </van-col>
-      </van-row>
-    </div>
-    <div>
-      <van-row type="flex" justify="space-around">
-        <van-col span="7">
-          <van-button
-            round
-            block
-            type="info"
-            to=""
-            size="small"
-            style="padding: 0px"
-            @click="openSpecial(specials[0].id)"
-          >
-            {{ specials[1].name }}
-          </van-button>
-        </van-col>
-        <van-col span="7">
-          <van-button
-            round
-            block
-            type="info"
-            to=""
-            size="small"
-            style="padding: 0px"
-            @click="openSpecial(specials[0].id)"
-          >
-            {{ specials[1].name }}
-          </van-button>
-        </van-col>
-        <van-col span="7">
-          <van-button
-            round
-            block
-            type="info"
-            to=""
-            size="small"
-            style="padding: 0px"
-            @click="openSpecial(specials[0].id)"
-          >
-            {{ specials[1].name }}
-          </van-button>
-        </van-col>
-      </van-row>
-    </div>
+    <!-- 分类列表 -->
+    <van-tabs swipeable sticky color="white" background="rgba(0, 0, 0, 0)" @click="clickCategorize">
+      <van-tab v-for="(item, index) in categorizes" :key="index" :title="item" title-style="color:white;" />
+    </van-tabs>
     <van-divider dashed />
-    <!-- /专栏列表 -->
+    <!-- /分类列表 -->
     <van-pull-refresh v-model="refreshing" @refresh="onRefresh">
       <!-- 文章列表 -->
       <van-list
@@ -165,6 +69,11 @@ export default {
     return {
       i: 0,
       show: true,
+      categorizes: [
+        '观星（天）',
+        '风水（地）',
+        '测算（人）'
+      ],
       specials: [
         { id: 1, name: '神秘学' },
         { id: 2, name: '神秘学' },
@@ -189,7 +98,7 @@ export default {
     }
   },
   mounted() {
-    document.title = '修仙界'
+    document.title = '修真界'
     this.getBanners()
   },
   methods: {
@@ -246,6 +155,9 @@ export default {
       this.$router.push({
         path: '/Article', query: { id: data }
       })
+    },
+    clickCategorize(data) {
+      console.log(data)
     }
   }
 }

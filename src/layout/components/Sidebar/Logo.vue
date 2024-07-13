@@ -25,7 +25,7 @@ export default {
   },
   data() {
     return {
-      title: '修仙界-后台管理',
+      title: '修真界-后台管理',
       logo: Logo
     }
   }

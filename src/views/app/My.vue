@@ -9,7 +9,7 @@
         </template>
         <template #desc>
           <div style="text-align: left; color: white;">
-            <span>会员有效期：{{ member.vipExpiration }}</span>
+            <span>身份有效期：{{ member.vipExpiration }}</span>
           </div>
         </template>
         <template #thumb>
@@ -20,7 +20,7 @@
     <div v-show="showProduce" class="buyVip">
       <div style="padding: 0px 10px;">
         <div>
-          <div style="text-align: left; padding: 10px 0px 10px 10px;">会员升级</div>
+          <div style="text-align: left; padding: 10px 0px 10px 10px;">身份升级</div>
           <div class="produces">
             <van-row gutter="3">
               <van-col v-for="(item,index) of produces" :key="item.id" span="6">
@@ -36,7 +36,7 @@
           </div>
         </div>
         <div class="produce_desc">
-          会员有效期至：
+          身份有效期至：
           <span style="color: orangered">
             {{ currProduce.vipExpiration }}
           </span>
@@ -47,10 +47,10 @@
       </div>
     </div>
     <div v-show="showDesc" class="my">
-      <p>修仙界</p>
+      <p>修真界</p>
       <p>每周二、四晚上10点准时更新</p>
       <div v-show="toBuyVip" class="">
-        <van-button color="red" block style="border-radius: 5px ;" @click="showBuyVip">立即解锁”修仙界“会员资格</van-button>
+        <van-button color="red" block style="border-radius: 5px ;" @click="showBuyVip">立即进入”修真界“</van-button>
       </div>
     </div>
   </div>
