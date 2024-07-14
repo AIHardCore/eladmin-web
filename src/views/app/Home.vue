@@ -62,6 +62,8 @@
 import crudArticle from '@/api/app/article'
 import crudBanner from '@/api/app/banner'
 import img from '@/assets/images/app/default_img.png'
+import { removeAppToken, setAppToken, getAppToken } from '@/utils/auth'
+import crudLogin from '@/api/app/login'
 
 export default {
   name: 'HomePage',
@@ -74,40 +76,60 @@ export default {
         '风水（地）',
         '测算（人）'
       ],
-      specials: [
-        { id: 1, name: '神秘学' },
-        { id: 2, name: '神秘学' },
-        { id: 3, name: '神秘学' },
-        { id: 4, name: '神秘学' },
-        { id: 5, name: '神秘学' },
-        { id: 6, name: '神秘学' }
-      ],
       banners: [
         { img: img }
       ],
       list: [],
       loading: false,
-      finished: false,
+      finished: true,
       refreshing: false,
       page: {
         page: 0,
         size: 4,
-        sort: ['sort,asc', 'id,desc'],
-        sortStr: ''
+        sort: ['sort,asc', 'id,desc']
       }
     }
   },
   mounted() {
     document.title = '修真界'
-    this.getBanners()
+  },
+  created() {
+    this.path = this.$route.name
+    const index = window.location.href.indexOf('?')
+    const paramStr = window.location.href.substring(index + 1, window.location.href.length)
+    const params = paramStr.split('&')
+    params.forEach(element => {
+      if (element.indexOf('code') >= 0) {
+        this.code = element.substring(element.indexOf('=') + 1, element.length)
+      }
+    })
+    if (this.code) {
+      this.login()
+    } else if (!getAppToken()) {
+      crudLogin.getAuthUrl().then(res => {
+        window.open(res, '_self')
+      }).catch(() => {})
+    } else {
+      this.getBanners()
+      this.finished = false
+    }
   },
   methods: {
+    login() {
+      const data = {
+        code: this.code
+      }
+      removeAppToken()
+      crudLogin.login(data).then(res => {
+        setAppToken(res.token, true)
+        location.href = 'http://' + window.location.host + '/#/Home'
+      }).catch(() => {})
+    },
     onLoad() {
       if (this.refreshing) {
         this.list = []
         this.refreshing = false
         this.page.page = 0
-        this.page.sortStr = ''
       }
       // 异步更新数据
       crudArticle.list(this.page).then(res => {
@@ -121,7 +143,6 @@ export default {
         this.loading = false
         this.show = false
         this.page.page++
-        this.page.sortStr = ''
       }).catch(() => { })
     },
     onRefresh() {
@@ -139,8 +160,7 @@ export default {
         page: 0,
         size: 9999,
         sort: ['sort,asc'],
-        enabled: true,
-        sortStr: ''
+        enabled: true
       }
       crudBanner.list(pageData).then(res => {
         this.banners = res.content
@@ -164,6 +184,11 @@ export default {
 </script>
 
 <style scoped>
+.home {
+  min-height: 100vh; /* 设置最小高度为视口的100% */
+  overflow-y: auto; /* 如果内容超出屏幕，可以滚动查看 */
+}
+
 .list {
 }
 .bgr {

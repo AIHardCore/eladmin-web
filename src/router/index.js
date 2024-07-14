@@ -3,19 +3,30 @@ import store from '@/store'
 import Config from '@/settings'
 import NProgress from 'nprogress' // progress bar
 import 'nprogress/nprogress.css'// progress bar style
-import { getToken } from '@/utils/auth' // getToken from cookie
+import { getAppToken, getToken } from '@/utils/auth' // getToken from cookie
 import { buildMenus } from '@/api/system/menu'
 import { filterAsyncRouter } from '@/store/modules/permission'
 
 NProgress.configure({ showSpinner: false })// NProgress Configuration
 
 const whiteList = ['/login', '/app']// no redirect whitelist
-const whiteListOfApp = ['/app', '/Home', '/Rank', '/Specials', '/SpecialInfo', '/My', '/Article', '/Result']// no redirect whitelist
-
+const listOfApp = ['/Home', '/Rank', '/Specials', '/SpecialInfo', '/My', '/Article', '/Result']// no redirect whitelist
+const whiteListOfApp = ['/Home']// no redirect whitelist
 router.beforeEach((to, from, next) => {
   // 访问App
-  if (whiteListOfApp.indexOf(to.path) !== -1) {
-    next()
+  if (listOfApp.indexOf(to.path) !== -1) {
+    NProgress.start()
+    // 验证token
+    if (getAppToken()) {
+      next()
+      NProgress.done()
+    } else {
+      // 白名单
+      if (whiteListOfApp.indexOf(to.path) !== -1) {
+        next()
+      }
+      NProgress.done()
+    }
   } else { // 访问管理后台
     if (to.meta.title) {
       document.title = to.meta.title + ' - ' + Config.title

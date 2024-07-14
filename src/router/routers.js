@@ -33,7 +33,7 @@ export const constantRouterMap = [
   },
   {
     path: '/',
-    redirect: '/Auth',
+    redirect: '/Home',
     component: () => import('@/layout/app/index'),
     hidden: true,
     children: [
