@@ -28,3 +28,7 @@ export function setAppToken(token, rememberMe) {
 export function removeToken() {
   return Cookies.remove(TokenKey)
 }
+
+export function removeAppToken() {
+  return Cookies.remove(AppTokenKey)
+}
