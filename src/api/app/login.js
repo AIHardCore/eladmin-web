@@ -7,4 +7,11 @@ export function login(data) {
     data
   })
 }
-export default { login }
+
+export function getAuthUrl() {
+  return request({
+    url: 'app/wx/url/code',
+    method: 'get'
+  })
+}
+export default { login, getAuthUrl }
