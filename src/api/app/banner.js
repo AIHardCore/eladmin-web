@@ -1,11 +1,18 @@
 import request from '@/utils/request'
 
 export function list(data) {
-  Object.keys(data.sort).forEach(key => {
-    data.sortStr += '&sort=' + data.sort[key]
+  data['params'] = ''
+  Object.keys(data).forEach(key => {
+    if (data[key] instanceof Array) {
+      Object.keys(data[key]).forEach(index => {
+        data['params'] = data['params'].concat(data['params'].length === 0 ? '?' : '&', key).concat('=', data[key][index])
+      })
+    } else {
+      data['params'] = data['params'].concat(data['params'].length === 0 ? '?' : '&', key).concat('=', data[key])
+    }
   })
   return request({
-    url: 'app/banner?page=' + data.page + '&size=' + data.size + '&enabled=' + data.enabled + data.sortStr,
+    url: 'app/banner' + data['params'],
     method: 'get',
     data
   })
