@@ -10,7 +10,7 @@
     </div>
     <div v-show="!article.body" style="height: 150px">
       <div style="text-align: left;color: red;font-size: 15px;">
-        <span>看更多精彩内容可升级包年会员，海量解密文章每周二、四更新</span>
+        <span>进入修真界，了解更多深度、稀缺、硬核内容，每周更新</span>
       </div>
       <div>
         <van-button color="red" block to="/My">立即进入”修真界“</van-button>
@@ -44,7 +44,7 @@ export default {
   created() {},
   mounted() {
     this.$emit('to', this.$route.path)
-    Watermark.set({ text: '修真界', time: null })
+    Watermark.set({ text: '道友李三川', time: null })
     this.onLoad()
   },
   methods: {
@@ -62,6 +62,8 @@ export default {
 .article-container {
   background-color: white;
   padding: 0px 15px;
+  min-height: 100vh; /* 设置最小高度为视口的100% */
+  overflow-y: auto; /* 如果内容超出屏幕，可以滚动查看 */
 }
 .vhtml {
   font-size: 60%;
