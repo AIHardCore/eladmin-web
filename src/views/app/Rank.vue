@@ -84,4 +84,8 @@ export default {
 </script>
 
 <style scoped>
+.rank-container {
+  min-height: 100vh; /* 设置最小高度为视口的100% */
+  overflow-y: auto; /* 如果内容超出屏幕，可以滚动查看 */
+}
 </style>
