@@ -9,7 +9,7 @@
         </template>
         <template #desc>
           <div style="text-align: left; color: white;">
-            <span>身份有效期：{{ member.vipExpiration }}</span>
+            <span>身份有效期：<span :class="{line_through : !member.type}">{{ member.vipExpiration }}</span></span>
           </div>
         </template>
         <template #thumb>
@@ -23,12 +23,12 @@
           <div style="text-align: left; padding: 10px 0px 10px 10px;">身份升级</div>
           <div class="produces">
             <van-row gutter="3">
-              <van-col v-for="(item,index) of produces" :key="item.id" span="6">
+              <van-col v-for="(item,index) of produces" :key="item.id" :span="24 / produces.length">
                 <ul>
                   <li :class="{ produce_action : currProduce.id === item.id, produce : currProduce.id !== item.id }" @click="selectOne(index)">
-                    <div class="howlong">{{ item.desc }}</div>
-                    <div class="price">￥{{ item.price }}元</div>
-                    <div class="average">{{ item.average }}元/月</div>
+                    <div class="howlong">{{ item.name }}</div>
+                    <div class="price">￥{{ (item.priceOfYuan) }}元</div>
+                    <div class="average">{{ (item.priceOfYuan / (item.timeUnit === 0 ? item.timeLength : item.priceOfYuan * 12)).toFixed(2) }}元/月</div>
                   </li>
                 </ul>
               </van-col>
@@ -43,7 +43,15 @@
         </div>
       </div>
       <div class="fixed-top">
-        <van-button color="red" block style="border-radius: 5px ;" @click="buyVip"><span style="color: white">立即以 {{ currProduce.price }} 元开通</span></van-button>
+        <van-button v-show="!paying && !paid" color="red" block style="border-radius: 5px ;" @click="buyVip">
+          <span style="color: white">立即以 {{ currProduce.priceOfYuan }} 元开通</span>
+        </van-button>
+        <van-button v-show="paying && !paid" color="red" block style="border-radius: 5px ;" @click="buyVip">
+          <span style="color: white">支付中...</span>
+        </van-button>
+        <van-button v-show="!paying && paid" color="red" block style="border-radius: 5px ;" @click="buyVip">
+          <span style="color: white">支付成功</span>
+        </van-button>
       </div>
     </div>
     <div v-show="showDesc" class="my">
@@ -53,6 +61,7 @@
         <van-button color="red" block style="border-radius: 5px ;" @click="showBuyVip">立即进入”修真界“</van-button>
       </div>
     </div>
+    <van-dialog v-model="showDialog" title="提示" message="支付完成，请稍等..." :before-close="beforeClose" />
   </div>
 </template>
 
@@ -61,6 +70,7 @@ import crudMy from '@/api/app/my'
 import crudOrder from '@/api/app/order'
 import wx from 'weixin-js-sdk'
 import avatar from '@/assets/images/avatar.png'
+import crudProduct from '@/api/app/produce'
 
 export default {
   name: 'MyPage',
@@ -68,58 +78,30 @@ export default {
   props: {},
   data() {
     return {
+      showDialog: false,
       showDesc: true,
       showProduce: false,
       toBuyVip: false,
-      currProduce: {
-        id: 1,
-        desc: '6个月',
-        price: (29000 / 100),
-        average: (490 / 100),
-        vipExpiration: '2025.01.01 23:59:59'
-      },
+      paying: false,
+      paid: false,
+      currProduce: {},
       member: {
         headImgUrl: avatar,
         nickName: '用户昵称',
         vipExpiration: '无'
       },
-      produces: [
-        {
-          id: 1,
-          desc: '6个月',
-          price: (29000 / 100),
-          average: (4900 / 100),
-          vipExpiration: '2024.11.01 23:59:59'
-        },
-        {
-          id: 2,
-          desc: '一年',
-          price: (39000 / 100),
-          average: (3300 / 100),
-          vipExpiration: '2025.01.01 23:59:59'
-        },
-        {
-          id: 3,
-          desc: '两年',
-          price: (59000 / 100),
-          average: (2400 / 100),
-          vipExpiration: '2026.01.01 23:59:59'
-        },
-        {
-          id: 4,
-          desc: '三年',
-          price: (79000 / 100),
-          average: (2200 / 100),
-          vipExpiration: '2027.01.01 23:59:59'
-        }
-      ]
+      produces: []
     }
   },
-  computed: {},
+  computed: {
+  },
   watch: {
     member(val) {
       this.toBuyVip = !val.type
     }
+  },
+  mounted() {
+    this.getAllProduce()
   },
   created() {
     this.getInfo()
@@ -127,6 +109,30 @@ export default {
   methods: {
     selectOne(data) {
       this.currProduce = this.produces[data]
+      // 获取当前时间
+      const currentDate = new Date()
+      // 将时间加上时间长度
+      if (this.currProduce.timeUnit === 0) {
+        currentDate.setMonth(currentDate.getMonth() + this.currProduce.timeLength)
+      } else {
+        currentDate.setFullYear(currentDate.getFullYear() + this.currProduce.timeLength)
+      }
+      this.produces[data]['vipExpiration'] = this.formatDate(currentDate)
+      this.paying = false
+      this.paid = false
+    },
+    formatDate(date) {
+      const year = date.getFullYear()
+      const month = this.padZero(date.getMonth() + 1) // 月份是从0开始的
+      const day = this.padZero(date.getDate())
+      const hours = this.padZero(date.getHours())
+      const minutes = this.padZero(date.getMinutes())
+      const seconds = this.padZero(date.getSeconds())
+
+      return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`
+    },
+    padZero(num) {
+      return num < 10 ? '0' + num : num
     },
     showBuyVip() {
       this.showDesc = !this.showDesc
@@ -138,72 +144,103 @@ export default {
       }).catch(() => {
       })
     },
-    buyVip() {
-      this.buyText = '支付中...'
+    getAllProduce() {
       const data = {
-        amount: 20000
+        enabled: true,
+        size: 9999,
+        sort: ['sort,asc', 'id,desc']
+      }
+      crudProduct.all(data).then(res => {
+        this.produces = res.content
+        this.currProduce = this.produces[0]
+        this.selectOne(0)
+      }).catch(() => {})
+    },
+    buyVip() {
+      this.paying = true
+      const data = {
+        amount: this.currProduce.price
       }
       crudOrder.create(data).then(res => {
         this.wxPay(res)
       }).catch(() => {
+        this.paying = false
       })
     },
-    wxPay(res) {
-      if (res.status === 200) {
-        if (res.data.code) {
-          this.$message.warning(res.data.msg)
-        } else {
-          // 调起微信支付
-          const that = this
-          const { appId, nonceStr, timeStamp, paySign, signType } = res
-          const prepayId = res.packageVal
-          wx.config({
-            debug: false, // 测试阶段可用 true 打包返回给后台用 false
-            appId: appId,
-            timestamp: timeStamp,
-            nonceStr: nonceStr,
-            signature: paySign,
-            jsApiList: ['chooseWXPay']
-          })
-          wx.ready(function() {
-            wx.chooseWXPay({
-              appId: appId,
-              timestamp: timeStamp, // 时间戳
-              nonceStr: nonceStr, // 随机字符串
-              package: prepayId, // 统一支付接口返回的prepay_id参数值
-              signType: signType, //  签名方式，默认为'SHA1'，使用新版支付需传入'MD5'
-              paySign: paySign, // 支付签名
-              success: function(res) {
-                this.handleClose()
-                that.Toast('支付成功')
-                this.$message.success('支付成功')
-                setTimeout(() => {
-                  location.reload()
-                  this.$router.go(0)
-                }, 2000)
-              },
-              cancel: function(res) {
-                that.Toast('支付取消')
-                this.$message.warning('支付取消')
-              },
-              fail: function(res) {
-                that.Toast('支付失败')
-                this.$message.error('支付失败')
-              }
-            })
-          })
-        }
-      } else if (res.status === 50001) {
-        this.$router.push('/auth')
+    handSuccess() {
+      this.showDialog = true
+    },
+    beforeClose(action, done) {
+      if (action === 'confirm') {
+        setTimeout(() => {
+          done()
+          this.$router.go(0)
+        }, 1000)
       } else {
-        this.$message.warning(res.msg)
+        done()
       }
+    },
+    wxPay(res) {
+      // 调起微信支付
+      const { appId, nonceStr, timeStamp, paySign, signType } = res
+      const prepayId = res.packageVal
+      const that = this
+      wx.config({
+        debug: false, // 测试阶段可用 true 打包返回给后台用 false
+        appId: appId,
+        timestamp: timeStamp,
+        nonceStr: nonceStr,
+        signature: paySign,
+        jsApiList: ['chooseWXPay']
+      })
+      wx.ready(function() {
+        wx.chooseWXPay({
+          appId: appId,
+          timestamp: timeStamp, // 时间戳
+          nonceStr: nonceStr, // 随机字符串
+          package: prepayId, // 统一支付接口返回的prepay_id参数值
+          signType: signType, //  签名方式，默认为'SHA1'，使用新版支付需传入'MD5'
+          paySign: paySign, // 支付签名
+          success: function(res) {
+            // 在函数内不能之间操作外部数据，需要调用外部函数处理
+            that.handSuccess()
+            that.$toast.success('支付成功')
+          },
+          cancel: function(res) {
+            that.$toast('支付取消')
+          },
+          fail: function(res) {
+            that.$toast.fail('支付失败')
+          },
+          complete: function(res) {
+            that.paying = false
+            // 接口调用完成时执行的回调函数，无论成功或失败都会执行
+            if (res.errMsg === 'chooseWXPay:ok') {
+              // 【支付成功】：支付成功提示页面，点击完成按钮之后
+            } else if (res.errMsg === 'chooseWXPay:cancel') {
+              // 【支付取消】
+            } else {
+              that.$toast('未知错误')
+            }
+            /**
+             * iOS和Android支付成功点击“完成”后都会进入success和complete函数，都返回'chooseWXPay:ok'
+             * （也有人说Android支付成功不进入success函数，）
+             * 原因是【iOS和Android返回数据不同。支付成功后Android返回 {"errMsg":"getBrandWCPayRequest:ok"}，iOS返回{"err_Info":"success","errMsg":"chooseWXPay:ok"}，故Android找不到success方法，导致失败】
+             * */
+          }
+        })
+      })
     }
   }
 }
 </script>
 
 <style scoped>
+
+.my-container {
+  min-height: 100vh; /* 设置最小高度为视口的100% */
+  overflow-y: auto; /* 如果内容超出屏幕，可以滚动查看 */
+}
 
 .my {
   height: 200px;
@@ -258,5 +295,9 @@ export default {
   border: 1px solid #cccccc;
   padding: 10px 0px 10px 10px;
   background-color: #f0f0eb;
+}
+
+.line_through {
+  text-decoration:line-through;
 }
 </style>
