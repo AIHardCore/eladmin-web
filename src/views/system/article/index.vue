@@ -272,7 +272,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        crudArticle.edit(data).then(res => {
+        crudArticle.enabled(data).then(res => {
           this.crud.notify(this.dict.label.user_status[val] + '成功', CRUD.NOTIFICATION_TYPE.SUCCESS)
         }).catch(() => {
           data.enabled = !data.enabled

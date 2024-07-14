@@ -24,6 +24,14 @@ export function edit(data) {
   })
 }
 
+export function enabled(data) {
+  return request({
+    url: 'api/article/enabled',
+    method: 'put',
+    data
+  })
+}
+
 export function detail(data) {
   return request({
     url: 'api/articleBody/' + data,
@@ -45,4 +53,4 @@ export function page(data) {
   })
 }
 
-export default { add, edit, del, detail, find, page }
+export default { add, edit, del, detail, find, page, enabled }
