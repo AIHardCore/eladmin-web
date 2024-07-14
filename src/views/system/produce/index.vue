@@ -24,8 +24,8 @@
           <el-form-item label="名称" prop="name">
             <el-input v-model="form.name" />
           </el-form-item>
-          <el-form-item label="价格()" prop="price">
-            <el-input-number v-model="form.priceOfYuan" controls-position="right" :precision="2" :min="1" style="width: 100%" />
+          <el-form-item label="价格(元)" prop="price">
+            <el-input-number v-model="form.priceOfYuan" controls-position="right" :precision="2" :min="0.01" style="width: 100%" />
           </el-form-item>
           <el-form-item label="时间单位" prop="timeUnit">
             <el-select v-model="form.timeUnit" filterable placeholder="请选择" style="width: 100%">
@@ -46,8 +46,11 @@
               >{{ item.label }}</el-radio>
             </el-radio-group>
           </el-form-item>-->
-          <el-form-item v-enable="form.timeUnit" label="时间长度" prop="timeLength">
+          <el-form-item label="时间长度" prop="timeLength">
             <el-input-number v-model="form.timeLength" controls-position="right" :min="1" :max="11" style="width: 100%" />
+          </el-form-item>
+          <el-form-item label="排序" prop="sort">
+            <el-input-number v-model="form.sort" controls-position="right" :min="0" style="width: 100%" />
           </el-form-item>
           <el-form-item label="状态">
             <el-radio-group v-model="form.enabled">
@@ -85,6 +88,7 @@
             />
           </template>
         </el-table-column>
+        <el-table-column prop="sort" label="排序" />
         <el-table-column prop="createTime" label="创建日期" />
         <el-table-column prop="updateTime" label="更新时间" />
         <el-table-column v-if="checkPer(['admin','produce:edit','produce:del'])" label="操作" width="150px" align="center">
@@ -109,9 +113,8 @@ import rrOperation from '@crud/RR.operation'
 import crudOperation from '@crud/CRUD.operation'
 import udOperation from '@crud/UD.operation'
 import pagination from '@crud/Pagination'
-import crudUser from '@/api/system/user'
 
-const defaultForm = { id: null, name: null, price: null, priceOfYuan: null, timeUnit: 0, timeLength: null, enabled: 'false', createBy: null, updateBy: null, createTime: null, updateTime: null }
+const defaultForm = { id: null, name: null, price: 1, sort: 0, priceOfYuan: null, timeUnit: 0, timeLength: null, enabled: 'false', createBy: null, updateBy: null, createTime: null, updateTime: null }
 export default {
   name: 'Produce',
   components: { pagination, crudOperation, rrOperation, udOperation },
@@ -135,6 +138,9 @@ export default {
         ],
         price: [
           { required: true, message: '价格不能为空', trigger: 'blur' }
+        ],
+        sort: [
+          { required: true, message: '排序不能为空', trigger: 'blur' }
         ],
         timeUnit: [
           { required: true, message: '时间单位不能为空', trigger: 'blur' }
@@ -172,12 +178,12 @@ export default {
     },
     // 改变状态
     changeEnabled(data, val) {
-      this.$confirm('此操作将 "' + this.dict.label.user_status[val] + '" ' + data.username + ', 是否继续？', '提示', {
+      this.$confirm('此操作将 "' + this.dict.label.user_status[val] + '" ' + data.name + ', 是否继续？', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        crudUser.edit(data).then(res => {
+        crudProduce.edit(data).then(res => {
           this.crud.notify(this.dict.label.user_status[val] + '成功', CRUD.NOTIFICATION_TYPE.SUCCESS)
         }).catch(() => {
           data.enabled = !data.enabled
