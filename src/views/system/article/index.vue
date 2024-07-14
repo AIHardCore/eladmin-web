@@ -252,7 +252,6 @@ export default {
     // 提交前做的操作
     [CRUD.HOOK.afterValidateCU](crud) {
       crud.form.specials = articleSpecials
-      crud.form.cover = this.cover
       return true
     },
     getSpecials() {
