@@ -1,5 +1,5 @@
 <template>
-  <div class="rank-container">
+  <div class="result-container">
     <van-list
       v-model="loading"
       :finished="finished"
@@ -47,4 +47,8 @@ export default {
 </script>
 
 <style scoped>
+.result-container {
+  min-height: 100vh; /* 设置最小高度为视口的100% */
+  overflow-y: auto; /* 如果内容超出屏幕，可以滚动查看 */
+}
 </style>

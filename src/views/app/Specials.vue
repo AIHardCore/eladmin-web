@@ -63,6 +63,8 @@ export default {
 <style scoped>
 .special-container {
   padding:1px 15px;
+  min-height: 100vh; /* 设置最小高度为视口的100% */
+  overflow-y: auto; /* 如果内容超出屏幕，可以滚动查看 */
 }
 .special_name {
   text-align: left;
