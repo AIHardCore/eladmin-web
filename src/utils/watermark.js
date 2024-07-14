@@ -24,7 +24,7 @@ const setWatermark = (str) => {
   Context2D.fillStyle = '#cccccc' // 水印颜色 HEX格式,可使用red 或者rgb格式
   Context2D.textAlign = 'center' // 水印水平位置
   Context2D.textBaseline = 'Middle' // 水印垂直位置
-  Context2D.fillText(str, createCanvas.width / 3, createCanvas.height / 2)
+  Context2D.fillText(str, createCanvas.width / 25, createCanvas.height / 2)
 
   // 创建元素
   const createDiv = document.createElement('div')
