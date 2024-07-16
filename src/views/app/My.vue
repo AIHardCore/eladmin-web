@@ -1,5 +1,5 @@
 <template>
-  <div class="my-container" style="background: white;">
+  <div class="my-container" style="background: #EDEDED;">
     <div>
       <van-card style="background: black;">
         <template #title>
@@ -15,12 +15,44 @@
         <template #thumb>
           <van-image round width="80" height="80" :src="member.headImgUrl" />
         </template>
+        <template #tags>
+          <div style="text-align: left; padding: 5px 0px 0px 0px; color: white;">
+            <span>手机号：{{ member.phone? member.phone : '未设置' }}</span>
+          </div>
+        </template>
       </van-card>
+    </div>
+    <div>
+      <van-collapse v-model="activeNames">
+        <van-collapse-item title="编辑个人信息" name="1">
+          <el-form ref="member" :model="member" :rules="rules">
+            <el-form-item
+              label="手机号"
+              prop="phone"
+              :rules="[
+                { type: 'number', message: '手机号必须为数字值'},
+                { validator: validatePhone, trigger: 'change' }
+              ]"
+            >
+              <el-input
+                v-model.number="member.phone"
+                size="small"
+                maxlength="11"
+                placeholder="手机号"
+                autocomplete="off"
+                @blur="submitForm('member')"
+              >
+                <el-button slot="append" icon="el-icon-check" @click="submitForm('member')" />
+              </el-input>
+            </el-form-item>
+          </el-form>
+        </van-collapse-item>
+      </van-collapse>
     </div>
     <div v-show="showProduce" class="buyVip">
       <div style="padding: 0px 10px;">
         <div>
-          <div style="text-align: left; padding: 10px 0px 10px 10px;">身份升级</div>
+          <div style="text-align: left; padding: 10px 0px 10px 10px;">身份升级后正式进入修真界，可浏览所有内容</div>
           <div class="produces">
             <van-row gutter="3">
               <van-col v-for="(item,index) of produces" :key="item.id" :span="24 / produces.length">
@@ -28,7 +60,6 @@
                   <li :class="{ produce_action : currProduce.id === item.id, produce : currProduce.id !== item.id }" @click="selectOne(index)">
                     <div class="howlong">{{ item.name }}</div>
                     <div class="price">￥{{ (item.priceOfYuan) }}元</div>
-                    <div class="average">{{ (item.priceOfYuan / (item.timeUnit === 0 ? item.timeLength : item.priceOfYuan * 12)).toFixed(2) }}元/月</div>
                   </li>
                 </ul>
               </van-col>
@@ -42,7 +73,7 @@
           </span>
         </div>
       </div>
-      <div class="fixed-top">
+      <div class="fixed-bottom">
         <van-button v-show="!paying && !paid" color="red" block style="border-radius: 5px ;" @click="buyVip">
           <span style="color: white">立即以 {{ currProduce.priceOfYuan }} 元开通</span>
         </van-button>
@@ -54,12 +85,17 @@
         </van-button>
       </div>
     </div>
-    <div v-show="showDesc" class="my">
+    <div v-show="showDesc && !member.type" class="my">
       <p>修真界</p>
-      <p>每周二、四晚上10点准时更新</p>
+      <p>每周五准时更新</p>
       <div v-show="toBuyVip" class="">
         <van-button color="red" block style="border-radius: 5px ;" @click="showBuyVip">立即进入”修真界“</van-button>
       </div>
+    </div>
+    <div v-show="member.type" class="vipDesc">
+      <p>您已进入修真界！</p>
+      <p>可任意浏览所有内容！</p>
+      <p>每周五更新深度、稀缺内容，不见不散！</p>
     </div>
     <van-dialog v-model="showDialog" title="提示" message="支付完成，请稍等..." :before-close="beforeClose" />
   </div>
@@ -71,14 +107,17 @@ import crudOrder from '@/api/app/order'
 import wx from 'weixin-js-sdk'
 import avatar from '@/assets/images/avatar.png'
 import crudProduct from '@/api/app/produce'
+import { validatePhone } from '@/utils/validate'
 
 export default {
   name: 'MyPage',
   components: {},
-  props: {},
   data() {
     return {
+      validatePhone: validatePhone,
+      activeNames: ['0'],
       showDialog: false,
+      phoneReadonly: true,
       showDesc: true,
       showProduce: false,
       toBuyVip: false,
@@ -180,6 +219,19 @@ export default {
         done()
       }
     },
+    submitForm(formName) {
+      this.$refs[formName].validate((valid) => {
+        if (valid) {
+          crudMy.save(this.member).then(res => {
+            this.phoneReadonly = true
+            this.$toast('已保存')
+          }).catch(() => {})
+        } else {
+          console.log('error submit!!')
+          return false
+        }
+      })
+    },
     wxPay(res) {
       // 调起微信支付
       const { appId, nonceStr, timeStamp, paySign, signType } = res
@@ -251,23 +303,26 @@ export default {
   height: 300px;
 }
 
-.fixed-top {
+.fixed-bottom {
   position: fixed;
-  bottom: 50px;
+  bottom: 80px;
   left: 0;
   width: 100%;
   z-index: 1000; /* 确保元素在顶层 */
 }
 
 .howlong {
+  font-size: 12px;
 }
 
 .price {
-  font-size: 20px;
+  font-size: 18px;
+  font-weight: 600;
   color: red;
 }
 
 .average {
+  font-size: 12px;
 }
 
 .produce {
@@ -299,5 +354,13 @@ export default {
 
 .line_through {
   text-decoration:line-through;
+}
+
+.vipDesc p {
+  text-align: center;
+}
+
+.my_label label{
+  font-weight: 800;
 }
 </style>

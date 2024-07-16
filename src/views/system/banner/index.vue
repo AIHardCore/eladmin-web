@@ -23,7 +23,7 @@
           />
         </el-select>
         <date-range-picker
-          v-model="query.deadlines"
+          v-model="query.betweenTime"
           start-placeholder="开始时间"
           end-placeholder="结束时间"
           class="date-item"
@@ -147,7 +147,7 @@ import { mapGetters } from 'vuex'
 import { getAll } from '@/api/special'
 import crudArticle from '@/api/article'
 
-const defaultForm = { id: null, img: null, special: null, sort: null, enabled: 'false', beginTime: null, endTime: null, createTime: null, updateTime: null, describe: null, deadlines: null }
+const defaultForm = { id: null, img: null, special: null, sort: null, enabled: 'false', beginTime: null, endTime: null, createTime: null, updateTime: null, describe: null, betweenTime: null }
 export default {
   name: 'Banner',
   components: { pagination, crudOperation, rrOperation, udOperation, DateRangePicker },

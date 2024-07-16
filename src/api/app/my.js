@@ -2,9 +2,17 @@ import request from '@/utils/request'
 
 export function info() {
   return request({
-    url: 'app/auth/info',
+    url: 'app/member/info',
     method: 'get'
   })
 }
 
-export default { info }
+export function save(data) {
+  return request({
+    url: 'app/member',
+    method: 'put',
+    data
+  })
+}
+
+export default { info, save }

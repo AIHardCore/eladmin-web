@@ -5,14 +5,14 @@
         v-model="searchText"
         show-action
         left-icon=""
-        placeholder="阿斯顿发射点"
+        placeholder=""
         :background="searchBgr"
         @clear="onClear"
         @search="onSearch"
         @cancel="onCancel"
       >
         <template #action>
-          <div style="font-size: 13px; background-color: white;" @click="onSearch">搜索</div>
+          <div style="font-size: 13px; background-color: black;color: white" @click="onSearch">搜索</div>
         </template>
       </van-search>
     </form>
@@ -27,10 +27,15 @@ export default {
   data() {
     return {
       searchText: null,
-      searchBgr: '#00000060',
+      searchBgr: '#EDEDED',
       isFixed: false,
       scrollTimeout: null, // 用于存储setTimeout返回的ID
-      offsetTop: 0
+      offsetTop: 0,
+      pageData: {
+        page: 1,
+        size: 20,
+        title: ''
+      }
     }
   },
   computed: {},
@@ -52,9 +57,11 @@ export default {
   },
   methods: {
     onSearch(val) {
-      this.$router.push({
-        path: '/Result', query: { key: this.searchText }
-      })
+      if (this.searchText) {
+        this.$router.push({
+          path: '/Result', query: { key: this.searchText }
+        })
+      }
     },
     onClear(val) {
       this.searchText = null
@@ -64,7 +71,7 @@ export default {
     },
     handleScroll() {
       const scrollTop = window.pageYOffset
-      if (scrollTop >= this.offsetTop) {
+      if (scrollTop > this.offsetTop) {
         // 当页面向下滚动超过元素距离顶部的偏移量时，开始固定位置
         this.isFixed = true
         this.searchBgr = 'rgba(0, 0, 0, 0.5)'
@@ -97,15 +104,13 @@ export default {
 
 /* 更改搜索框内部颜色 */
 ::v-deep .van-search__content {
-  background-color: #00000060;
-  border: 5px solid #ffffff;
-  border-radius: 10px 0px 0px 10px ;
+  background-color: #EDEDED;
+  border: 5px solid black;
 }
 /* 更改搜索框按钮边框和颜色 */
 ::v-deep .van-search__action {
-  background-color: #ffffff;
-  border: 5px solid #ffffff;
-  border-radius: 0px 10px 10px 0px ;
+  background-color: black;
+  border: 5px solid black;
 }
 /* 更改搜索框边距 */
 ::v-deep .van-search--show-action {
@@ -113,6 +118,9 @@ export default {
   padding-right: 2px;
 }
 ::v-deep .van-field__control {
-  color: white;
+  color: black;
+}
+.van-search {
+ padding: 1px 1px;
 }
 </style>

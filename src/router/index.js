@@ -6,6 +6,7 @@ import 'nprogress/nprogress.css'// progress bar style
 import { getAppToken, getToken } from '@/utils/auth' // getToken from cookie
 import { buildMenus } from '@/api/system/menu'
 import { filterAsyncRouter } from '@/store/modules/permission'
+import crudLogin from '@/api/app/login'
 
 NProgress.configure({ showSpinner: false })// NProgress Configuration
 
@@ -24,6 +25,10 @@ router.beforeEach((to, from, next) => {
       // 白名单
       if (whiteListOfApp.indexOf(to.path) !== -1) {
         next()
+      } else {
+        crudLogin.getAuthUrl().then(res => {
+          window.open(res, '_self')
+        }).catch(() => {})
       }
       NProgress.done()
     }
@@ -43,7 +48,6 @@ router.beforeEach((to, from, next) => {
             // 动态路由，拉取菜单
             loadMenus(next, to)
           }).catch(() => {
-            debugger
             store.dispatch('LogOut').then(() => {
               location.reload() // 为了重新实例化vue-router对象 避免bug
             })

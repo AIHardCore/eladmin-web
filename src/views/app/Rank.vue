@@ -1,89 +1,160 @@
 <template>
   <div class="rank-container">
-    <van-row type="flex" justify="center" gutter="3" style="margin: 3px 3px;">
-      <van-col span="12"><van-button color="#FF3333" block @click="changeType(0)">人气榜</van-button></van-col>
-      <van-col span="12"><van-button color="#3366FF" block @click="changeType(1)">推荐榜</van-button></van-col>
-    </van-row>
-    <van-index-bar :index-list="indexList" style="margin: 0px 3px; background-color: white; border-radius: 10px;height: 100%;">
-      <van-cell v-for="item in list" :key="item.id" style="background: rgba(255, 255, 255, 0.1);">
-        <van-row @click="openArticle(item.id)">
-          <van-col span="1">
-            <van-image :src="item.img" width="10" height="10" fit="contain" />
-          </van-col>
-          <van-col span="1">
-            .
-          </van-col>
-          <van-col span="20">
-            <div class="van-ellipsis">{{ item.text }}</div>
-          </van-col>
-        </van-row>
-      </van-cell>
-    </van-index-bar>
+    <div :class="{'fixed-top': isFixed}">
+      <van-tabs color="#000000" @click="clickCategorize">
+        <van-tab v-for="(item, index) in categorizes" :key="index" title-style="font-weight: 700;font-size: 15px" :title="item.label" />
+      </van-tabs>
+    </div>
+    <van-list
+      v-model="loading"
+      class="list"
+      :finished="finished"
+      offset="50"
+      @load="onLoad"
+    >
+      <template slot="finished">
+        <span style="text-align: center;color: black;width: 100%;">没有更多了...</span>
+      </template>
+      <van-card
+        v-for="item in list"
+        :key="item.article.id"
+        class="bgr"
+        :thumb="item.article.cover"
+        @click="read(item.article.id)"
+      >
+        <template #desc>
+          <div style="text-align: left;font-size: 17px">
+            <br>
+            <span class="van-multi-ellipsis--l3">{{ item.article.title }}</span>
+          </div>
+        </template>
+        <template #footer>
+          <div>
+            <span style="color: chocolate;font-size: 10px">{{ item.article.reading }}人</span>
+            <span style="font-size: 10px;">已经火速观看</span>
+          </div>
+          <van-divider dashed :style="{ color: 'black', borderColor: 'black', padding: '0 16px' }" />
+        </template>
+      </van-card>
+    </van-list>
   </div>
 </template>
 
 <script>
 import curdRank from '@/api/app/rank'
-import shuzi1 from '@/assets/images/app/shuzi1.png'
-import shuzi2 from '@/assets/images/app/shuzi2.png'
-import shuzi3 from '@/assets/images/app/shuzi3.png'
-import shuzi4 from '@/assets/images/app/shuzi4.png'
-import shuzi5 from '@/assets/images/app/shuzi5.png'
-import shuzi6 from '@/assets/images/app/shuzi6.png'
-import shuzi7 from '@/assets/images/app/shuzi7.png'
-import shuzi8 from '@/assets/images/app/shuzi8.png'
-import shuzi9 from '@/assets/images/app/shuzi9.png'
-import shuzi10 from '@/assets/images/app/shuzi10.png'
 
 export default {
   name: 'RankPage',
   props: {},
   data() {
     return {
-      indexList: [],
+      loading: false,
+      finished: false,
+      refreshing: false,
+      isFixed: false,
+      scrollTimeout: null, // 用于存储setTimeout返回的ID
+      offsetTop: 0,
+      categorizes: [],
       list: [],
-      images: [
-        shuzi1,
-        shuzi2,
-        shuzi3,
-        shuzi4,
-        shuzi5,
-        shuzi6,
-        shuzi7,
-        shuzi8,
-        shuzi9,
-        shuzi10
-      ]
+      pageData: {
+        page: 0,
+        size: 20,
+        enabled: true,
+        type: 0,
+        sort: ['sort,asc', 'id,desc']
+      }
     }
   },
   computed: {},
   watch: {},
-  created() {},
+  created() {
+    this.getTypes()
+  },
   mounted() {
-    this.getRanks(0)
+    // 计算元素距离顶部的偏移量
+    this.offsetTop = this.$refs.scrollContainer.offsetTop
+    // 添加滚动事件监听
+    window.addEventListener('scroll', this.handleScroll)
+  },
+  beforeDestroy() {
+    // 移除滚动事件监听
+    window.removeEventListener('scroll', this.debouncedHandleScroll)
+    // 清除可能还在等待的防抖函数
+    if (this.scrollTimeout) {
+      clearTimeout(this.scrollTimeout)
+    }
   },
   methods: {
-    getRanks(type) {
-      curdRank.page(type).then(res => {
+    onLoad() {
+      if (this.refreshing) {
         this.list = []
-        res.content.forEach((item, index) => {
-          this.list.push({ id: item.article.id, img: this.images[index], text: item.article.title })
-        })
+        this.refreshing = false
+        this.pageData.page = 0
+      }
+      // 异步更新数据
+      curdRank.list(this.pageData).then(res => {
+        if (res.content.length === 0) {
+          this.finished = true
+        }
+        for (let i = 0; i < res.content.length; i++) {
+          this.list.push(res.content[i])
+        }
+        // 加载状态结束
+        this.loading = false
+        this.pageData.page++
       }).catch(() => { })
     },
-    changeType(data) {
-      this.getRanks(data)
-    },
-    openArticle(data) {
+    read(data) {
       this.$router.push({
         path: '/Article', query: { id: data }
       })
+    },
+    getTypes() {
+      curdRank.types().then(res => {
+        this.categorizes = res
+      }).catch(() => { })
+    },
+    clickCategorize(name, title) {
+      this.pageData.type = name
+      this.refreshing = true
+      this.onLoad()
+    },
+    handleScroll() {
+      const scrollTop = window.pageYOffset
+      console.log(scrollTop)
+      if (scrollTop > this.offsetTop) {
+        // 当页面向下滚动超过元素距离顶部的偏移量时，开始固定位置
+        this.isFixed = true
+      } else {
+        // 当页面向上滚动并且未超过偏移量时，取消固定位置
+        this.isFixed = false
+      }
+    },
+    // 防抖处理函数
+    debouncedHandleScroll() {
+      if (this.scrollTimeout) {
+        clearTimeout(this.scrollTimeout) // 清除上一次的防抖
+      }
+      // 设置新的防抖
+      this.scrollTimeout = setTimeout(this.handleScroll, 200) // 200ms后执行handleScroll
     }
   }
 }
 </script>
 
 <style scoped>
+.bgr {
+  background: rgba(0, 0, 0, 0);
+}
+
+.fixed-top {
+  position: fixed;
+  top: 50px;
+  left: 0;
+  width: 100%;
+  z-index: 1000; /* 确保元素在顶层 */
+}
+
 .rank-container {
   min-height: 100vh; /* 设置最小高度为视口的100% */
   overflow-y: auto; /* 如果内容超出屏幕，可以滚动查看 */

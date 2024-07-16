@@ -21,7 +21,7 @@ const setWatermark = (str) => {
   /* 水印样式调整配置 */
   Context2D.rotate(-20 * Math.PI / 100) // 水印旋转角度
   Context2D.font = '20px Vedana' // 水印文字大小
-  Context2D.fillStyle = '#cccccc' // 水印颜色 HEX格式,可使用red 或者rgb格式
+  Context2D.fillStyle = '#a1a2a5' // 水印颜色 HEX格式,可使用red 或者rgb格式
   Context2D.textAlign = 'center' // 水印水平位置
   Context2D.textBaseline = 'Middle' // 水印垂直位置
   Context2D.fillText(str, createCanvas.width / 25, createCanvas.height / 2)

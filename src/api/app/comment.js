@@ -1,6 +1,6 @@
 import request from '@/utils/request'
 
-export function all(data) {
+export function page(data) {
   data['params'] = ''
   Object.keys(data).forEach(key => {
     if (key === 'params') return
@@ -13,9 +13,34 @@ export function all(data) {
     }
   })
   return request({
-    url: 'app/produce' + data['params'],
+    url: 'app/comment' + data['params'],
     method: 'get',
     data
   })
 }
-export default { all }
+
+export function add(data) {
+  return request({
+    url: 'app/comment',
+    method: 'post',
+    data
+  })
+}
+
+export function del(ids) {
+  return request({
+    url: 'app/comment/',
+    method: 'delete',
+    data: ids
+  })
+}
+
+export function edit(data) {
+  return request({
+    url: 'app/comment',
+    method: 'put',
+    data
+  })
+}
+
+export default { page, add, edit, del }

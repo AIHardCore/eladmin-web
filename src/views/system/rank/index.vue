@@ -8,16 +8,16 @@
           v-model="query.type"
           clearable
           size="small"
-          placeholder="榜单类型"
+          placeholder="古科学"
           class="filter-item"
           style="width: 100px"
           @change="crud.toQuery"
         >
           <el-option
-            v-for="item in typeOptions"
-            :key="item.key"
-            :label="item.display_name"
-            :value="item.key"
+            v-for="item in dict.rank_type"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value"
           />
         </el-select>
         <label class="el-form-item-label">文章</label>
@@ -29,7 +29,7 @@
       <!--表单组件-->
       <el-dialog :close-on-click-modal="false" :before-close="crud.cancelCU" :visible.sync="crud.status.cu > 0" :title="crud.status.title" width="500px">
         <el-form ref="form" :model="form" :rules="rules" size="small" label-width="80px">
-          <el-form-item label="榜单类型" prop="type">
+          <el-form-item label="古科学" prop="type">
             <el-radio v-for="item in dict.rank_type" :key="item.id" v-model="form.type" :label="item.value">{{ item.label }}</el-radio>
           </el-form-item>
           <el-form-item label="文章" prop="article">
@@ -65,7 +65,7 @@
       <el-table ref="table" v-loading="crud.loading" :data="crud.data" size="small" style="width: 100%;" @selection-change="crud.selectionChangeHandler">
         <el-table-column type="selection" width="55" />
         <el-table-column prop="id" label="id" />
-        <el-table-column prop="type" label="榜单类型">
+        <el-table-column prop="type" label="古科学">
           <template slot-scope="scope">
             {{ dict.label.rank_type[scope.row.type] }}
           </template>
@@ -126,7 +126,7 @@ export default {
       ],
       rules: {
         type: [
-          { required: true, message: '榜单类型不能为空', trigger: 'blur' }
+          { required: true, message: '古科学不能为空', trigger: 'blur' }
         ],
         articleId: [
           { required: true, message: '文章id不能为空', trigger: 'blur' }
@@ -139,10 +139,12 @@ export default {
         ]
       },
       queryTypeOptions: [
-        { key: 'type', display_name: '榜单类型' },
+        { key: 'type', display_name: '古科学' },
         { key: 'article', display_name: '文章' }
       ]
     }
+  },
+  computed() {
   },
   methods: {
     // 钩子：在获取表格数据之前执行，false 则代表不获取数据

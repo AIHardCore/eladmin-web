@@ -22,15 +22,15 @@
           <template #desc>
             <div style="text-align: left;font-size: 15px">
               <br>
-              <span class="van-multi-ellipsis--l3" style="color: white;">{{ item.title }}</span>
+              <span class="van-multi-ellipsis--l3">{{ item.title }}</span>
             </div>
           </template>
           <template #footer>
             <div>
-              <span style="color: chocolate;font-size: 10px">{{ item.reading }}万人</span>
-              <span style="font-size: 10px;color: white;">已经火速观看</span>
+              <span style="color: chocolate;font-size: 10px">{{ item.reading }}人</span>
+              <span style="font-size: 10px;">已经火速观看</span>
             </div>
-            <van-divider dashed />
+            <van-divider dashed :style="{ color: 'black', borderColor: 'black', padding: '0 16px' }" />
           </template>
         </van-card>
       </van-list>
@@ -40,6 +40,7 @@
 
 <script>
 import defaultImg from '@/assets/images/app/default_img.png'
+import crudSpecial from '@/api/app/special'
 
 export default {
   name: 'SpecialInfoPage',
@@ -64,9 +65,17 @@ export default {
   methods: {
     onLoad() {
       this.special = this.$store.state.special
+      if (!this.special || !this.special.articles) {
+        this.loadArticle()
+      }
       // 加载状态结束
       this.loading = false
       this.finished = true
+    },
+    loadArticle() {
+      crudSpecial.detail(this.id).then(res => {
+        this.special = res
+      }).catch(() => {})
     },
     read(data) {
       this.$router.push({

@@ -1,7 +1,8 @@
 <template>
   <div class="layout-container">
-    <div :style="'background-image:url('+ bgri +');'">
-      <div v-show="this.$store.state.routeName !== 'My' && this.$store.state.routeName !== 'Auth'"><notice-bar /></div>
+    <!--    <div :style="'background-image:url('+ bgri +');'" class="main">-->
+    <div style="background-color: #EDEDED" class="main">
+      <!--      <div v-show="this.$store.state.routeName !== 'My' && this.$store.state.routeName !== 'Auth'"><notice-bar /></div>-->
       <div v-show="this.$store.state.routeName !== 'My' && this.$store.state.routeName !== 'Article' && this.$store.state.routeName !== 'Auth'"><search-bar /></div>
       <!-- 子路由出口 -->
       <router-view />
@@ -10,12 +11,12 @@
       <!--
         route: 开启路由模式
        -->
-      <van-tabbar v-model="active" route active-color="#6B4400" inactive-color="#cdcdcd">
+      <van-tabbar v-model="active" route active-color="#6B4400" inactive-color="#cdcdcd" style="height: 80px">
         <!--        <van-tabbar-item badge="3" to="/My">-->
-        <van-tabbar-item v-for="(item,index) of bars" :key="index" :to="item.to">
-          <span>{{ item.title }}</span>
+        <van-tabbar-item v-for="(item,index) of bars" :key="index" :to="item.to" style="background-color: black;line-height:20px">
+          <span style="">{{ item.title }}</span>
           <template #icon="props">
-            <img :src="props.active ? item.active : item.inactive">
+            <img :src="props.active ? item.active : item.inactive" style="height: 30px">
           </template>
         </van-tabbar-item>
       </van-tabbar>
@@ -31,13 +32,12 @@
 </template>
 
 <script>
-import NoticeBar from '@/components/app/notice'
 import SearchBar from '@/components/app/search'
-import bgri from '@/assets/images/app/bgri.jpg'
+import bgri from '@/assets/images/app/bgr.webp'
 
 export default {
   name: 'LayoutIndex',
-  components: { SearchBar, NoticeBar },
+  components: { SearchBar },
   props: {},
   data() {
     return {
@@ -89,4 +89,11 @@ export default {
 </script>
 
 <style scoped>
+.main {
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-size: cover;
+  height: 100%;
+}
 </style>

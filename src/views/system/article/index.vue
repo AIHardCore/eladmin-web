@@ -28,7 +28,7 @@
           v-model="query.specials"
           clearable
           size="small"
-          placeholder="专栏"
+          placeholder="内丹学"
           class="filter-item"
           multiple
           style="width: 300px"
@@ -48,13 +48,13 @@
       <!--表单组件-->
       <el-dialog :close-on-click-modal="false" :before-close="crud.cancelCU" :visible.sync="crud.status.cu > 0" :title="crud.status.title">
         <el-form ref="form" :model="form" :rules="rules" size="small" label-width="80px">
-          <el-form-item style="margin-bottom: 0;" label="专栏" prop="section">
+          <el-form-item style="margin-bottom: 0;" label="内丹学" prop="section">
             <el-select
               v-model="specialDatas"
               clearable
               size="small"
               multiple
-              placeholder="专栏"
+              placeholder="内丹学"
               class="filter-item"
               style="width: 370px"
               @remove-tag="deleteTag"
@@ -168,6 +168,7 @@ import crudOperation from '@crud/CRUD.operation'
 import udOperation from '@crud/UD.operation'
 import pagination from '@crud/Pagination'
 import WangEditor from '@/components/WangEditor'
+import { mapGetters } from 'vuex'
 
 let articleSpecials = []
 const defaultForm = { id: null, specials: [], title: null, cover: null, preview: '', body: '', enabled: 'false', sort: null, reading: null, createTime: null, updateTime: null }
@@ -214,6 +215,12 @@ export default {
         { key: 'enabled', display_name: '状态' }
       ]
     }
+  },
+  computed: {
+    ...mapGetters([
+      'baseApi',
+      'fileUploadApi'
+    ])
   },
   methods: {
     // 钩子：在获取表格数据之前执行，false 则代表不获取数据

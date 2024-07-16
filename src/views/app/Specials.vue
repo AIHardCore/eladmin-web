@@ -4,7 +4,7 @@
       <li v-for="item of list" :key="item.id">
         <div @click="openSpecial(item.id)">
           <div>
-            <van-image lazy-load :src="item.cover" width="100%" height="250px" fit="fill" />
+            <van-image :src="item.cover" width="100%" height="250px" fit="fill" />
           </div>
           <div class="special_name">
             <span>【{{ item.name }}系列】</span>
@@ -62,20 +62,18 @@ export default {
 
 <style scoped>
 .special-container {
-  padding:1px 15px;
+  padding:5px 15px;
   min-height: 100vh; /* 设置最小高度为视口的100% */
   overflow-y: auto; /* 如果内容超出屏幕，可以滚动查看 */
 }
 .special_name {
   text-align: left;
   font-size: 20px;
-  color: white;
   padding: 10px 0px;
 }
 
 .special_desc {
   text-align: left;
   font-size: 15px;
-  color: white;
 }
 </style>

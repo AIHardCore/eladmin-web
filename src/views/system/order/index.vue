@@ -98,7 +98,7 @@ export default {
   components: { pagination, crudOperation, rrOperation, udOperation },
   mixins: [presenter(), header(), form(defaultForm), crud()],
   cruds() {
-    return CRUD({ title: '订单', url: 'api/order', idField: 'id', sort: 'id,desc', crudMethod: { ...crudOrder }})
+    return CRUD({ title: '订单', url: 'api/order', idField: 'id', sort: 'outTradeNo,desc', crudMethod: { ...crudOrder }})
   },
   data() {
     return {

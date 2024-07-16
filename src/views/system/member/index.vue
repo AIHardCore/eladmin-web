@@ -4,6 +4,8 @@
     <div class="head-container">
       <div v-if="crud.props.searchToggle">
         <!-- 搜索 -->
+        <label class="el-form-item-label">手机号</label>
+        <el-input v-model="query.phone" clearable placeholder="手机号" style="width: 185px;" class="filter-item" @keyup.enter.native="crud.toQuery" />
         <el-select
           v-model="query.enabled"
           clearable
@@ -21,19 +23,15 @@
           />
         </el-select>
         <date-range-picker v-model="query.vipExpiration" class="date-item" />
-        <date-range-picker v-model="query.createTime" class="date-item" />
         <rrOperation :crud="crud" />
       </div>
       <!--如果想在工具栏加入更多按钮，可以使用插槽方式， slot = 'left' or 'right'-->
       <crudOperation :permission="permission" />
       <!--表单组件-->
       <el-dialog :close-on-click-modal="false" :before-close="crud.cancelCU" :visible.sync="crud.status.cu > 0" :title="crud.status.title" width="500px">
-        <el-form ref="form" :model="form" :rules="rules" size="small" label-width="80px">
-          <el-form-item label="用户类型" prop="type">
-            <el-input v-model="form.type" style="width: 370px;" />
-          </el-form-item>
+        <el-form ref="form" :model="form" :rules="rules" size="small" label-width="120px">
           <el-form-item label="VIP到期时间" prop="vipExpiration">
-            <el-date-picker v-model="form.vipExpiration" type="datetime" style="width: 370px;" />
+            <el-date-picker v-model="form.vipExpiration" type="datetime" style="width: 200px;" />
           </el-form-item>
           <el-form-item label="状态">
             <el-radio v-for="item in dict.user_status" :key="item.id" v-model="form.enabled" :label="item.value">{{ item.label }}</el-radio>
@@ -48,9 +46,32 @@
       <el-table ref="table" v-loading="crud.loading" :data="crud.data" size="small" style="width: 100%;" @selection-change="crud.selectionChangeHandler">
         <el-table-column type="selection" width="55" />
         <el-table-column prop="nickName" label="昵称" />
-        <el-table-column prop="avater" label="头像" />
-        <el-table-column prop="type" label="用户类型" />
-        <el-table-column prop="vipExpiration" label="VIP到期时间" />
+        <el-table-column prop="headImgUrl" label="头像">
+          <template slot-scope="{row}">
+            <el-image
+              :src="row.headImgUrl"
+              :preview-src-list="[row.headImgUrl]"
+              fit="contain"
+              lazy
+              class="el-avatar"
+            >
+              <div slot="error">
+                <i class="el-icon-document" />
+              </div>
+            </el-image>
+          </template>
+        </el-table-column>
+        <el-table-column prop="phone" label="手机号" />
+        <el-table-column prop="type" label="用户类型">
+          <template slot-scope="scope">
+            {{ scope.row.type ? '会员' : '非会员' }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="vipExpiration" label="VIP到期时间">
+          <template slot-scope="scope">
+            <span :style="difference(scope.row)">{{ scope.row.vipExpiration }}</span>
+          </template>
+        </el-table-column>
         <el-table-column prop="enabled" label="状态">
           <template slot-scope="scope">
             {{ dict.label.user_status[scope.row.enabled] }}
@@ -82,14 +103,14 @@ import udOperation from '@crud/UD.operation'
 import pagination from '@crud/Pagination'
 import DateRangePicker from '@/components/DateRangePicker'
 
-const defaultForm = { id: null, appid: null, nickName: null, avater: null, type: null, vipExpiration: null, enabled: null, createTime: null, updateTime: null, updateBy: null }
+const defaultForm = { openId: null, nickName: null, headImgUrl: null, phone: null, type: null, vipExpiration: null, enabled: null, createTime: null, updateTime: null, updateBy: null }
 export default {
   name: 'Member',
   components: { pagination, crudOperation, rrOperation, udOperation, DateRangePicker },
   mixins: [presenter(), header(), form(defaultForm), crud()],
   dicts: ['user_status'],
   cruds() {
-    return CRUD({ title: 'APP用户', url: 'api/member', idField: 'id', sort: 'id,desc', crudMethod: { ...crudMember },
+    return CRUD({ title: 'APP用户', url: 'api/member', idField: 'id', sort: 'createTime,desc', crudMethod: { ...crudMember },
       optShow: {
         add: false,
         edit: true,
@@ -109,15 +130,6 @@ export default {
         { key: 'false', display_name: '锁定' }
       ],
       rules: {
-        appid: [
-          { required: true, message: 'appid不能为空', trigger: 'blur' }
-        ],
-        nickName: [
-          { required: true, message: '昵称不能为空', trigger: 'blur' }
-        ],
-        avater: [
-          { required: true, message: '头像不能为空', trigger: 'blur' }
-        ],
         type: [
           { required: true, message: '用户类型不能为空', trigger: 'blur' }
         ],
@@ -134,11 +146,52 @@ export default {
     // 钩子：在获取表格数据之前执行，false 则代表不获取数据
     [CRUD.HOOK.beforeRefresh]() {
       return true
+    },
+    // 新增与编辑前做的操作
+    [CRUD.HOOK.afterToCU](crud, form) {
+      form.enabled = form.enabled.toString()
+    },
+    difference(row) {
+      const dateTime = new Date()
+      const end = new Date(row.vipExpiration)
+      const dateDiff = end.getTime() - dateTime.getTime() // 时间差的毫秒数
+      const dayDiff = Math.floor(dateDiff / (24 * 3600 * 1000)) // 计算出相差天数
+
+      console.log(dayDiff)
+      if (dateDiff <= 0) {
+        return 'color: red'
+      } else if (dayDiff < 30) {
+        return 'color: goldenrod'
+      } else if (dayDiff < 60) {
+        return 'color: green'
+      } else if (dayDiff < 90) {
+        return 'color: blue'
+      }
+      return 'color: black'
     }
+    /* difference(row) {
+      const dateBegin = new Date(row.beginTime)
+      const dateEnd = new Date(row.endTime)
+      const dateDiff = dateEnd.getTime() - dateBegin.getTime() // 时间差的毫秒数
+      const dayDiff = Math.floor(dateDiff / (24 * 3600 * 1000)) // 计算出相差天数
+      const leave1 = dateDiff % (24 * 3600 * 1000) // 计算天数后剩余的毫秒数
+      const hours = Math.floor(leave1 / (3600 * 1000)) // 计算出小时数
+      // 计算相差分钟数
+      const leave2 = leave1 % (3600 * 1000) // 计算小时数后剩余的毫秒数
+      const minutes = Math.floor(leave2 / (60 * 1000)) // 计算相差分钟数
+      // 计算相差秒数
+      const leave3 = leave2 % (60 * 1000) // 计算分钟数后剩余的毫秒数
+      const seconds = Math.round(leave3 / 1000)
+      this.seconds = seconds
+      this.minutes = minutes
+      return this.seconds
+    } */
   }
 }
 </script>
 
 <style scoped>
-
+.img_div {
+  color: goldenrod;
+}
 </style>
