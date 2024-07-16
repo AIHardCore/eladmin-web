@@ -8,7 +8,7 @@
     @close="handleClose"
   >
     <div class="image-gallery">
-      <el-image
+      <!--      <el-image
         v-for="image in images"
         :key="image.realName"
         :src="baseApi+'/file/图片/' + image.realName"
@@ -16,8 +16,17 @@
         :class="{ img_action : currentImage === image}"
         lazy
         :preview-src-list="preview"
-        @click="selectImg(image, baseApi+'/file/图片/' + image.realName, $event)"
-      />
+      />-->
+      <el-row>
+        <el-col v-for="(image) in images" :key="image.id" :span="4">
+          <el-card :body-style="{ padding: '0px' }" class="img_div">
+            <img :src="baseApi+'/file/图片/' + image.realName" class="image" style="width: 100%; height: 100px;cursor:pointer;" @click="selectImg(image, baseApi+'/file/图片/' + image.realName, $event)">
+            <div style="padding: 14px;" class="img_div">
+              <span>{{ image.name }}</span>
+            </div>
+          </el-card>
+        </el-col>
+      </el-row>
     </div>
     <div class="block">
       <el-pagination
@@ -121,5 +130,39 @@ export default {
 <style scoped>
 .img_action {
   background-color: dodgerblue;
+}
+.time {
+  font-size: 13px;
+  color: #999;
+}
+
+.bottom {
+  margin-top: 13px;
+  line-height: 12px;
+}
+
+.button {
+  padding: 5px;
+  float: right;
+}
+
+.image {
+  width: 100%;
+  display: block;
+}
+
+.clearfix:before,
+.clearfix:after {
+  display: table;
+  content: "";
+}
+
+.clearfix:after {
+  clear: both
+}
+
+.img_div:hover {
+  cursor: pointer;
+  background-color: #999999;
 }
 </style>
