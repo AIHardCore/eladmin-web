@@ -48,7 +48,7 @@ export default {
       isFixed: false,
       scrollTimeout: null, // 用于存储setTimeout返回的ID
       offsetTop: 0,
-      active: '/Auth', // 默认高亮首页
+      active: this.$store.state.routeName, // 默认高亮首页
       bars: [
         {
           title: '道学',

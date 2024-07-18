@@ -1,64 +1,104 @@
 import router from '../router/routers'
-
 /* 水印配置 */
 // 声明
 const watermark = {}
-// 水印配置
-const setWatermark = (str) => {
+
+/**
+ *
+ * @param {要设置的水印的内容} text
+ * @param {需要设置水印的容器} container
+ */
+const setWatermark = (text, container, options) => {
   const id = '1.23452384164.123412415'
-  // 移除水印 判断
-  if (document.getElementById(id) !== null) {
-    document.body.removeChild(document.getElementById(id))
+  if (container === undefined) {
+    return
   }
-  // 创建画布
-  const createCanvas = document.createElement('canvas')
-  // 设置canvas画布大小
-  createCanvas.width = 120 // 宽度
-  createCanvas.height = 130 // 高度
+  const res = {
+    fontColor: '#a1a2a5',
+    fontSize: 25,
+    offsetX: 0,
+    offsetY: 0,
+    debug: false,
+    rows: 2,
+    height: 100,
+    bgc: '#8EA0E0'
+  }
 
-  // 创建Context2D对象作为2D渲染的上下文。
-  const Context2D = createCanvas.getContext('2d')
-  /* 水印样式调整配置 */
-  Context2D.rotate(-20 * Math.PI / 100) // 水印旋转角度
-  Context2D.font = '20px Vedana' // 水印文字大小
-  Context2D.fillStyle = '#a1a2a5' // 水印颜色 HEX格式,可使用red 或者rgb格式
-  Context2D.textAlign = 'center' // 水印水平位置
-  Context2D.textBaseline = 'Middle' // 水印垂直位置
-  Context2D.fillText(str, createCanvas.width / 25, createCanvas.height / 2)
+  Object.assign(res, options)
 
-  // 创建元素
-  const createDiv = document.createElement('div')
-  createDiv.id = id
-  // 水印默认设置
-  createDiv.style.pointerEvents = 'none' // 水印层事件穿透 让水印不阻止交互事件
-  createDiv.style.top = '30px' // 水印顶部距离
-  createDiv.style.left = '0px' // 水印左侧距离
-  createDiv.style.opacity = '0.15' // 水印透明度
-  createDiv.style.position = 'fixed' // 水印定位
-  createDiv.style.zIndex = '100000' // 水印样式优先显示
-  createDiv.style.width = document.documentElement.clientWidth + 'px' // 水印宽度
-  createDiv.style.height = document.documentElement.clientHeight - 80 + 'px' // 水印高度
-  createDiv.style.background = 'url(' + createCanvas.toDataURL('image/png') + ') left top repeat' // 水印显示(关键代码)
-  document.getElementById('article').appendChild(createDiv) // 在指定元素节点的最后一个子节点之后添加节点
+  // 查看页面上有没有，如果有则删除
+  if (document.getElementById(id) !== null) {
+    const childelement = document.getElementById(id)
+    childelement.parentNode.removeChild(childelement)
+  }
+
+  const containerWidth = container.offsetWidth // 获取父容器宽
+  const containerHeight = container.offsetHeight // 获取父容器高
+  container.style.position = 'relative' // 设置布局为相对布局
+
+  // 创建canvas元素(先制作一块背景图)
+  const can = document.createElement('canvas')
+  can.width = containerWidth / res.rows // 设置每一块的宽度
+  can.height = res.height // 高度
+  const ctx = can.getContext('2d') // 获取canvas画布
+  const textWidth = ctx.measureText(text).width
+
+  if (res.debug) {
+    ctx.fillStyle = res.bgc // 设置字体的颜色
+    // 根据计算出的字体大小调整填充文本的位置
+    ctx.fillRect(0, 0, containerWidth, containerHeight)// 绘制文字
+    ctx.beginPath()
+    ctx.rect(0, 0, can.width, can.height)
+    ctx.strokeStyle = 'black' // 边框颜色
+    ctx.lineWidth = 2 // 边框宽度
+    ctx.stroke()
+  }
+
+  ctx.beginPath()
+  ctx.textAlign = 'left' // 文本对齐方式
+  ctx.textBaseline = 'Middle' // 文本基线
+  ctx.font = res.size + `px Arial`
+  ctx.rotate(-20 * Math.PI / 180) // 逆时针旋转π/9
+  ctx.fillStyle = res.color
+  ctx.fillText(text, can.width / res.rows - textWidth + res.offsetX, can.height + res.offsetY, containerWidth)// 绘制文字
+
+  // 创建一个div元素
+  const div = document.createElement('div')
+  div.id = id // 设置id
+  div.style.pointerEvents = 'none' // 取消所有事件
+  div.style.top = '0px'
+  div.style.left = '0px'
+  div.style.position = 'absolute'
+  div.style.width = containerWidth + 'px'
+  div.style.height = containerHeight + 'px'
+  div.style.background = 'url(' + can.toDataURL('image/png') + ') left top repeat'
+  container.appendChild(div) // 追加到页面
+
   return id
 }
 
-// 此方法只允许调用一次
-watermark.set = (data) => {
-  const id = setWatermark(data.text)
-  // 设置间隔
-  data.time = setInterval(() => {
+// 该方法只允许调用一次
+watermark.set = (text, container, options) => {
+  let id = setWatermark(text, container, options)
+  let timer = null
+  let timer2 = null
+  timer = setInterval(() => {
     if (router.app._route.path !== '/Article') {
-      clearTimeout(data.time)
+      window.clearInterval(timer)
+      window.clearInterval(timer2)
       return
     }
     if (document.getElementById(id) === null) {
-      this.id = setWatermark(data.text)
+      id = setWatermark(text, container, options)
     }
-  }, 1000)
-  // 改变大小时执行
+  }, 500)
+  timer2 = setInterval(() => {
+    setWatermark(text, container, options)
+  }, 3000)
+  console.log(timer2)
+  // 监听页面大小的变化
   window.onresize = () => {
-    setWatermark(data.text)
+    setWatermark(text, container, options)
   }
 }
 

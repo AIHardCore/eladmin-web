@@ -27,6 +27,20 @@ export function add(data) {
   })
 }
 
+export function like(data) {
+  return request({
+    url: 'app/comment/like/' + data,
+    method: 'put'
+  })
+}
+
+export function unlike(data) {
+  return request({
+    url: 'app/comment/unlike/' + data,
+    method: 'put'
+  })
+}
+
 export function del(ids) {
   return request({
     url: 'app/comment/',
@@ -43,4 +57,4 @@ export function edit(data) {
   })
 }
 
-export default { page, add, edit, del }
+export default { page, add, edit, del, like, unlike }

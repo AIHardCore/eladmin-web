@@ -6,13 +6,15 @@
         <!-- 搜索 -->
         <label class="el-form-item-label">手机号</label>
         <el-input v-model="query.phone" clearable placeholder="手机号" style="width: 185px;" class="filter-item" @keyup.enter.native="crud.toQuery" />
+        <label class="el-form-item-label">昵称</label>
+        <el-input v-model="query.nickName" clearable placeholder="昵称" style="width: 185px;" class="filter-item" @keyup.enter.native="crud.toQuery" />
         <el-select
-          v-model="query.enabled"
+          v-model="query.type"
           clearable
           size="small"
-          placeholder="状态"
+          placeholder="用户类型"
           class="filter-item"
-          style="width: 90px"
+          style="width: 110px"
           @change="crud.toQuery"
         >
           <el-option
@@ -30,6 +32,12 @@
       <!--表单组件-->
       <el-dialog :close-on-click-modal="false" :before-close="crud.cancelCU" :visible.sync="crud.status.cu > 0" :title="crud.status.title" width="500px">
         <el-form ref="form" :model="form" :rules="rules" size="small" label-width="120px">
+          <el-form-item label="昵称" prop="nickName">
+            <el-input v-model="form.nickName" />
+          </el-form-item>
+          <el-form-item label="头像" prop="headImgUrl">
+            <el-input v-model="form.headImgUrl" :disabled="form.createBy === 'System'" />
+          </el-form-item>
           <el-form-item label="VIP到期时间" prop="vipExpiration">
             <el-date-picker v-model="form.vipExpiration" type="datetime" style="width: 200px;" />
           </el-form-item>
@@ -103,7 +111,7 @@ import udOperation from '@crud/UD.operation'
 import pagination from '@crud/Pagination'
 import DateRangePicker from '@/components/DateRangePicker'
 
-const defaultForm = { openId: null, nickName: null, headImgUrl: null, phone: null, type: null, vipExpiration: null, enabled: null, createTime: null, updateTime: null, updateBy: null }
+const defaultForm = { openId: null, nickName: null, headImgUrl: null, phone: null, type: null, vipExpiration: null, enabled: null, createTime: null, updateTime: null, updateBy: null, createBy: null }
 export default {
   name: 'Member',
   components: { pagination, crudOperation, rrOperation, udOperation, DateRangePicker },
@@ -112,7 +120,7 @@ export default {
   cruds() {
     return CRUD({ title: 'APP用户', url: 'api/member', idField: 'id', sort: 'createTime,desc', crudMethod: { ...crudMember },
       optShow: {
-        add: false,
+        add: true,
         edit: true,
         del: false,
         reset: false
@@ -126,8 +134,8 @@ export default {
         del: ['admin', 'member:del']
       },
       enabledTypeOptions: [
-        { key: 'true', display_name: '激活' },
-        { key: 'false', display_name: '锁定' }
+        { key: 'true', display_name: '会员' },
+        { key: 'false', display_name: '非会员' }
       ],
       rules: {
         type: [
@@ -157,7 +165,6 @@ export default {
       const dateDiff = end.getTime() - dateTime.getTime() // 时间差的毫秒数
       const dayDiff = Math.floor(dateDiff / (24 * 3600 * 1000)) // 计算出相差天数
 
-      console.log(dayDiff)
       if (dateDiff <= 0) {
         return 'color: red'
       } else if (dayDiff < 30) {

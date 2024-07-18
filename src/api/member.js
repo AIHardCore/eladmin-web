@@ -1,5 +1,12 @@
 import request from '@/utils/request'
 
+export function page() {
+  return request({
+    url: 'api/member?page=0&size=9999&notCreateBy=System',
+    method: 'get'
+  })
+}
+
 export function add(data) {
   return request({
     url: 'api/member',
@@ -24,4 +31,4 @@ export function edit(data) {
   })
 }
 
-export default { add, edit, del }
+export default { add, edit, del, page }

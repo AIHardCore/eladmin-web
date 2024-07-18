@@ -25,7 +25,7 @@
     <div>
       <van-collapse v-model="activeNames">
         <van-collapse-item title="编辑个人信息" name="1">
-          <el-form ref="member" :model="member" :rules="rules">
+          <el-form ref="member" :model="member">
             <el-form-item
               label="手机号"
               prop="phone"
@@ -140,6 +140,9 @@ export default {
     }
   },
   mounted() {
+    this.showDesc = this.$route.query.showDesc !== undefined ? this.$route.query.showDesc : true
+    this.showProduce = this.$route.query.showProduce !== undefined ? this.$route.query.showProduce : false
+    this.toBuyVip = this.$route.query.toBuyVip !== undefined ? this.$route.query.toBuyVip : false
     this.getAllProduce()
   },
   created() {

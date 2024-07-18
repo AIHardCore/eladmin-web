@@ -10,8 +10,22 @@
         <el-input v-model="query.openId" clearable placeholder="用户昵称" style="width: 185px;" class="filter-item" @keyup.enter.native="crud.toQuery" />
         <label class="el-form-item-label">点赞数</label>
         <el-input v-model="query.likes" clearable placeholder="点赞数" style="width: 185px;" class="filter-item" @keyup.enter.native="crud.toQuery" />
-        <label class="el-form-item-label">状态</label>
-        <el-input v-model="query.enabled" clearable placeholder="状态" style="width: 185px;" class="filter-item" @keyup.enter.native="crud.toQuery" />
+        <el-select
+          v-model="query.enabled"
+          clearable
+          size="small"
+          placeholder="状态"
+          class="filter-item"
+          style="width: 90px"
+          @change="crud.toQuery"
+        >
+          <el-option
+            v-for="item in dict.user_status"
+            :key="item.id"
+            :label="item.label"
+            :value="item.value"
+          />
+        </el-select>
         <rrOperation :crud="crud" />
       </div>
       <!--如果想在工具栏加入更多按钮，可以使用插槽方式， slot = 'left' or 'right'-->
@@ -20,30 +34,42 @@
       <el-dialog :close-on-click-modal="false" :before-close="crud.cancelCU" :visible.sync="crud.status.cu > 0" :title="crud.status.title" width="500px">
         <el-form ref="form" :model="form" :rules="rules" size="small" label-width="80px">
           <el-form-item label="内容" prop="message">
-            <el-input v-model="form.message" style="width: 370px;" />
+            <el-input v-model="form.message" type="textarea" maxlength="200" :rows="5" style="width: 370px;" />
           </el-form-item>
           <el-form-item label="用户">
-            <el-select v-model="form.enabled" filterable placeholder="请选择">
+            <el-select
+              v-model="form.member.openId"
+              clearable
+              size="small"
+              placeholder="用户"
+              class="filter-item"
+              style="width: 110px"
+              @change="changeMember"
+            >
               <el-option
-                v-for="item in dict.user_status"
-                :key="item.id"
-                :label="item.label"
-                :value="item.value"
+                v-for="item in systemMembers"
+                :key="item.openId"
+                :label="item.nickName"
+                :value="item.openId"
               />
             </el-select>
+            <el-image
+              :src="headImgUrl"
+              :preview-src-list="[headImgUrl]"
+              fit="contain"
+              lazy
+              class="el-avatar"
+            >
+              <div slot="error">
+                <i class="el-icon-document" />
+              </div>
+            </el-image>
           </el-form-item>
           <el-form-item label="点赞数" prop="likes">
-            <el-input v-model="form.likes" style="width: 370px;" />
+            <el-input-number v-model="form.likes" controls-position="right" :min="0" />
           </el-form-item>
           <el-form-item label="状态">
-            <el-select v-model="form.enabled" filterable placeholder="请选择">
-              <el-option
-                v-for="item in dict.user_status"
-                :key="item.id"
-                :label="item.label"
-                :value="item.value"
-              />
-            </el-select>
+            <el-radio v-for="item in dict.user_status" :key="item.id" v-model="form.enabled" :label="item.value">{{ item.label }}</el-radio>
           </el-form-item>
         </el-form>
         <div slot="footer" class="dialog-footer">
@@ -55,6 +81,11 @@
       <el-table ref="table" v-loading="crud.loading" :data="crud.data" size="small" style="width: 100%;" @selection-change="crud.selectionChangeHandler">
         <el-table-column type="selection" width="55" />
         <el-table-column prop="message" label="内容" />
+        <el-table-column prop="article" label="文章">
+          <template slot-scope="scope">
+            {{ scope.row.article.title }}
+          </template>
+        </el-table-column>
         <el-table-column prop="member" label="用户">
           <template slot-scope="scope">
             {{ scope.row.member.nickName }}
@@ -63,7 +94,12 @@
         <el-table-column prop="likes" label="点赞数" />
         <el-table-column prop="enabled" label="状态">
           <template slot-scope="scope">
-            {{ dict.label.user_status[scope.row.enabled] }}
+            <el-switch
+              v-model="scope.row.enabled"
+              active-color="#409EFF"
+              inactive-color="#F56C6C"
+              @change="changeEnabled(scope.row, scope.row.enabled)"
+            />
           </template>
         </el-table-column>
         <el-table-column prop="createBy" label="创建者" />
@@ -90,8 +126,9 @@ import rrOperation from '@crud/RR.operation'
 import crudOperation from '@crud/CRUD.operation'
 import udOperation from '@crud/UD.operation'
 import pagination from '@crud/Pagination'
+import crudMember from '@/api/member'
 
-const defaultForm = { id: null, message: null, openId: null, likes: null, enabled: null, createBy: null, updateBy: null, createTime: null, updateTime: null }
+const defaultForm = { id: null, message: null, member: { }, openId: null, likes: null, enabled: null, createBy: null, updateBy: null, createTime: null, updateTime: null }
 export default {
   name: 'Comment',
   components: { pagination, crudOperation, rrOperation, udOperation },
@@ -107,6 +144,8 @@ export default {
         edit: ['admin', 'comment:edit'],
         del: ['admin', 'comment:del']
       },
+      headImgUrl: null,
+      systemMembers: [],
       rules: {
         message: [
           { required: true, message: '内容不能为空', trigger: 'blur' }
@@ -130,6 +169,42 @@ export default {
     // 钩子：在获取表格数据之前执行，false 则代表不获取数据
     [CRUD.HOOK.beforeRefresh]() {
       return true
+    },
+    // 新增与编辑前做的操作
+    [CRUD.HOOK.afterToCU](crud, form) {
+      this.headImgUrl = null
+      this.getSystemMember()
+      this.getSpecials()
+      form.enabled = form.enabled.toString()
+    },
+    getSystemMember() {
+      crudMember.page().then(res => {
+        this.systemMembers = res.content
+      }).catch(() => {})
+    },
+    changeMember(data) {
+      this.systemMembers.forEach(item => {
+        if (item.openId === data) {
+          this.headImgUrl = item.headImgUrl
+          return
+        }
+      })
+    },
+    // 改变状态
+    changeEnabled(data, val) {
+      this.$confirm('此操作将 "' + this.dict.label.user_status[val] + '" ' + data.member.nickName + '的这条留言, 是否继续？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        crudComment.edit(data).then(res => {
+          this.crud.notify(this.dict.label.user_status[val] + '成功', CRUD.NOTIFICATION_TYPE.SUCCESS)
+        }).catch(() => {
+          data.enabled = !data.enabled
+        })
+      }).catch(() => {
+        data.enabled = !data.enabled
+      })
     }
   }
 }

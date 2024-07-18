@@ -9,7 +9,22 @@
         <label class="el-form-item-label">商户订单号</label>
         <el-input v-model="query.outTradeNo" clearable placeholder="商户订单号" style="width: 185px;" class="filter-item" @keyup.enter.native="crud.toQuery" />
         <label class="el-form-item-label">状态</label>
-        <el-input v-model="query.status" clearable placeholder="状态" style="width: 185px;" class="filter-item" @keyup.enter.native="crud.toQuery" />
+        <el-select
+          v-model="query.status"
+          clearable
+          size="small"
+          placeholder="状态"
+          class="filter-item"
+          style="width: 110px"
+          @change="crud.toQuery"
+        >
+          <el-option
+            v-for="item in statusTypeOptions"
+            :key="item.key"
+            :label="item.display_name"
+            :value="item.key"
+          />
+        </el-select>
         <date-range-picker
           v-model="query.createTime"
           start-placeholder="createTimeStart"
@@ -107,6 +122,10 @@ export default {
         edit: ['admin', 'order:edit'],
         del: ['admin', 'order:del']
       },
+      statusTypeOptions: [
+        { key: '0', display_name: '已支付' },
+        { key: '2', display_name: '未支付' }
+      ],
       rules: {
       },
       queryTypeOptions: [
