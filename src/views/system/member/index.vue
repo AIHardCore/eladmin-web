@@ -8,6 +8,8 @@
         <el-input v-model="query.phone" clearable placeholder="手机号" style="width: 185px;" class="filter-item" @keyup.enter.native="crud.toQuery" />
         <label class="el-form-item-label">昵称</label>
         <el-input v-model="query.nickName" clearable placeholder="昵称" style="width: 185px;" class="filter-item" @keyup.enter.native="crud.toQuery" />
+        <label class="el-form-item-label">OPENID</label>
+        <el-input v-model="query.openId" clearable placeholder="OPENID" style="width: 185px;" class="filter-item" @keyup.enter.native="crud.toQuery" />
         <el-select
           v-model="query.type"
           clearable
