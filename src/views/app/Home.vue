@@ -59,10 +59,10 @@ export default {
   name: 'HomePage',
   data() {
     return {
+      code: null,
       banners: [
         { img: img }
       ],
-      created: false,
       list: [],
       loading: false,
       finished: false,
@@ -82,6 +82,10 @@ export default {
     ])
   },
   mounted() {
+    this.auth()
+  },
+  created() {
+    this.path = this.$route.name
     const VUE_APP_VERSION = require('../../../package.json').version
     const vers = window.localStorage.getItem('appVersion')
     if (VUE_APP_VERSION !== vers) {
@@ -90,42 +94,36 @@ export default {
       location.reload()
     }
     document.title = '修真界'
-  },
-  created() {
-    this.path = this.$route.name
-    const index = window.location.href.indexOf('?')
-    const paramStr = window.location.href.substring(index + 1, window.location.href.length)
-    const params = paramStr.split('&')
-    params.forEach(element => {
-      if (element.indexOf('code') >= 0) {
-        this.code = element.substring(element.indexOf('=') + 1, element.length)
-      }
-    })
-    if (this.code) {
-      this.login()
-    } else if (!getAppToken()) {
-      crudLogin.getAuthUrl().then(res => {
-        window.open(res, '_self')
-      }).catch(() => {})
-    } else {
-      this.beginLoadData()
-    }
+    this.beginLoadData()
   },
   methods: {
+    auth() {
+      if (!getAppToken()) {
+        removeAppToken()
+      }
+      const index = window.location.href.indexOf('?')
+      const paramStr = window.location.href.substring(index + 1, window.location.href.length)
+      const params = paramStr.split('&')
+      params.forEach(element => {
+        if (element.indexOf('code') >= 0) {
+          this.code = element.substring(element.indexOf('=') + 1, element.length)
+        }
+      })
+      if (this.code) {
+        this.login()
+      }
+    },
     login() {
       const data = {
         code: this.code
       }
       console.log('开始登录...code=' + this.code)
-      removeAppToken()
       crudLogin.login(data).then(res => {
         setAppToken(res.token, true)
         location.href = window.location.protocol + '//' + window.location.host
-        this.beginLoadData()
       }).catch(() => {})
     },
     onLoad() {
-      if (!this.created) return
       if (this.refreshing) {
         this.list = []
         this.refreshing = false
@@ -146,7 +144,6 @@ export default {
     },
     beginLoadData() {
       this.getBanners()
-      this.created = true
       this.onLoad()
     },
     getBanners() {
