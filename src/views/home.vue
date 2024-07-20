@@ -36,23 +36,32 @@ import LineChart from './dashboard/LineChart'
 import RadarChart from '@/components/Echarts/RadarChart'
 import PieChart from '@/components/Echarts/PieChart'
 import BarChart from '@/components/Echarts/BarChart'
+import crudStatistics from '@/api/statistics'
 
 const lineChartData = {
-  newVisitis: {
-    expectedData: [100, 120, 161, 134, 105, 160, 165],
-    actualData: [120, 82, 91, 154, 162, 140, 145]
+  newLogin: {
+    days: [],
+    failData: [],
+    successData: [],
+    keys: ['失败', '成功']
   },
   messages: {
-    expectedData: [200, 192, 120, 144, 160, 130, 140],
-    actualData: [180, 160, 151, 106, 145, 150, 130]
+    days: [],
+    failData: [],
+    successData: [],
+    keys: ['未支付', '已支付']
   },
-  purchases: {
-    expectedData: [80, 100, 121, 104, 105, 90, 100],
-    actualData: [120, 90, 100, 138, 142, 130, 130]
+  amount: {
+    days: [],
+    failData: [],
+    successData: [],
+    keys: ['未支付', '已支付']
   },
   shoppings: {
-    expectedData: [130, 140, 141, 142, 145, 150, 160],
-    actualData: [120, 82, 91, 154, 162, 140, 130]
+    days: [],
+    failData: [],
+    successData: [],
+    keys: ['未支付', '已支付']
   }
 }
 
@@ -68,40 +77,77 @@ export default {
   },
   data() {
     return {
-      lineChartData: lineChartData.newVisitis
+      lineChartData: lineChartData.newLogin
     }
+  },
+  mounted() {
+  },
+  created() {
+    this.getLogs()
   },
   methods: {
     handleSetLineChartData(type) {
       this.lineChartData = lineChartData[type]
+    },
+    getLogs() {
+      crudStatistics.loginLogs(true).then(res => {
+        lineChartData.newLogin.successData = []
+        lineChartData.newLogin.days = []
+        res.forEach(item => {
+          lineChartData.newLogin.successData.push(item['num'])
+          lineChartData.newLogin.days.push(item['days'])
+        })
+        console.log(lineChartData.newLogin.days)
+      }).catch(() => {})
+      crudStatistics.loginLogs(false).then(res => {
+        lineChartData.newLogin.failData = []
+        res.forEach(item => {
+          lineChartData.newLogin.failData.push(item['num'])
+        })
+      }).catch(() => {})
+      crudStatistics.orderLogs(0).then(res => {
+        lineChartData.amount.successData = []
+        lineChartData.amount.days = []
+        res.forEach(item => {
+          lineChartData.amount.successData.push(item['num'])
+          lineChartData.amount.days.push(item['days'])
+        })
+        console.log(lineChartData.newLogin.days)
+      }).catch(() => {})
+      crudStatistics.orderLogs(2).then(res => {
+        lineChartData.amount.failData = []
+        res.forEach(item => {
+          lineChartData.amount.failData.push(item['num'])
+        })
+      }).catch(() => {})
     }
   }
 }
 </script>
 
 <style rel="stylesheet/scss" lang="scss" scoped>
-  .dashboard-editor-container {
-    padding: 32px;
-    background-color: rgb(240, 242, 245);
-    position: relative;
+.dashboard-editor-container {
+  padding: 32px;
+  background-color: rgb(240, 242, 245);
+  position: relative;
 
-    .github-corner {
-      position: absolute;
-      top: 0;
-      border: 0;
-      right: 0;
-    }
-
-    .chart-wrapper {
-      background: #fff;
-      padding: 16px 16px 0;
-      margin-bottom: 32px;
-    }
+  .github-corner {
+    position: absolute;
+    top: 0;
+    border: 0;
+    right: 0;
   }
 
-  @media (max-width:1024px) {
-    .chart-wrapper {
-      padding: 8px;
-    }
+  .chart-wrapper {
+    background: #fff;
+    padding: 16px 16px 0;
+    margin-bottom: 32px;
   }
+}
+
+@media (max-width:1024px) {
+  .chart-wrapper {
+    padding: 8px;
+  }
+}
 </style>
