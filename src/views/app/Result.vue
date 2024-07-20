@@ -94,6 +94,11 @@ export default {
         this.loading = false
       }).catch(() => { })
       this.pageData.page += 1
+    },
+    read(data) {
+      this.$router.push({
+        path: '/Article', query: { id: data }
+      })
     }
   }
 }

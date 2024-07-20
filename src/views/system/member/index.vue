@@ -69,6 +69,7 @@
             </el-image>
           </template>
         </el-table-column>
+        <el-table-column prop="openId" label="OPENID" />
         <el-table-column prop="phone" label="手机号" />
         <el-table-column prop="type" label="用户类型">
           <template slot-scope="scope">

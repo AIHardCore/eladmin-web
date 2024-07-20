@@ -71,6 +71,11 @@ service.interceptors.response.use(
           router.push({ path: '/401' })
         } else if (code === 1001) { // App端未登录，跳转到微信授权页面
           window.open(error.response.data.message, '_self')
+        } else if (code === 500) {
+          Notification.error({
+            title: '服务器开小差了，再试一下吧',
+            duration: 5000
+          })
         } else {
           const errorMsg = error.response.data.message
           if (errorMsg !== undefined) {

@@ -201,7 +201,7 @@ export default {
     buyVip() {
       this.paying = true
       const data = {
-        amount: this.currProduce.price
+        produceId: this.currProduce.id
       }
       crudOrder.create(data).then(res => {
         this.wxPay(res)
@@ -324,10 +324,6 @@ export default {
   color: red;
 }
 
-.average {
-  font-size: 12px;
-}
-
 .produce {
   border: 3px solid #cccccc;
   line-height: 50px;
@@ -361,9 +357,5 @@ export default {
 
 .vipDesc p {
   text-align: center;
-}
-
-.my_label label{
-  font-weight: 800;
 }
 </style>

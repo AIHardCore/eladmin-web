@@ -24,7 +24,7 @@
       <van-card
         v-for="item in list"
         :key="item.id"
-        class="bgr"
+        class="list_card"
         :thumb="item.cover"
         @click="read(item.id)"
       >
@@ -82,6 +82,13 @@ export default {
     ])
   },
   mounted() {
+    const VUE_APP_VERSION = require('../../../package.json').version
+    const vers = window.localStorage.getItem('appVersion')
+    if (VUE_APP_VERSION !== vers) {
+      localStorage.clear()
+      window.localStorage.setItem('appVersion', VUE_APP_VERSION)
+      location.reload()
+    }
     document.title = '修真界'
   },
   created() {
@@ -113,7 +120,7 @@ export default {
       removeAppToken()
       crudLogin.login(data).then(res => {
         setAppToken(res.token, true)
-        location.href = 'http://' + window.location.host + '/#/Home'
+        location.href = window.location.protocol + '//' + window.location.host
         this.beginLoadData()
       }).catch(() => {})
     },
@@ -175,7 +182,7 @@ export default {
 
 .list {
 }
-.bgr {
+.list_card {
   background: rgba(0, 0, 0, 0);
 }
 

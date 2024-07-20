@@ -1,6 +1,6 @@
 <template>
   <div class="rank-container">
-    <div :class="{'fixed-top': isFixed}">
+    <div ref="scrollContainer" :class="{'fixed-top': isFixed}">
       <van-tabs color="#000000" @click="clickCategorize">
         <van-tab v-for="(item, index) in categorizes" :key="index" title-style="font-weight: 700;font-size: 15px" :title="item.label" />
       </van-tabs>
@@ -71,8 +71,6 @@ export default {
     this.getTypes()
   },
   mounted() {
-    // 计算元素距离顶部的偏移量
-    this.offsetTop = this.$refs.scrollContainer.offsetTop
     // 添加滚动事件监听
     window.addEventListener('scroll', this.handleScroll)
   },
@@ -121,7 +119,6 @@ export default {
     },
     handleScroll() {
       const scrollTop = window.pageYOffset
-      console.log(scrollTop)
       if (scrollTop > this.offsetTop) {
         // 当页面向下滚动超过元素距离顶部的偏移量时，开始固定位置
         this.isFixed = true
@@ -149,7 +146,7 @@ export default {
 
 .fixed-top {
   position: fixed;
-  top: 50px;
+  top: 46px;
   left: 0;
   width: 100%;
   z-index: 1000; /* 确保元素在顶层 */
