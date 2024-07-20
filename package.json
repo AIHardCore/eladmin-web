@@ -1,6 +1,6 @@
 {
   "name": "eladmin-web",
-  "version": "2.7.0",
+  "version": "2.7.22",
   "description": "ELADMIN 前端源码",
   "author": "Zheng Jie",
   "license": "Apache-2.0",
@@ -8,6 +8,7 @@
     "dev": "vue-cli-service serve",
     "build:prod": "vue-cli-service build",
     "build:stage": "vue-cli-service build --mode staging",
+    "zip": "node src/utils/zip-dist.js",
     "preview": "node build/index.js --preview",
     "lint": "eslint --ext .js,.vue src",
     "test:unit": "jest --clearCache && vue-cli-service test:unit",
@@ -79,6 +80,7 @@
     "@vue/cli-plugin-unit-jest": "3.5.3",
     "@vue/cli-service": "3.5.3",
     "@vue/test-utils": "1.0.0-beta.29",
+    "archiver": "^7.0.1",
     "autoprefixer": "^9.5.1",
     "babel-core": "7.0.0-bridge.0",
     "babel-eslint": "10.0.1",
