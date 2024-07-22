@@ -388,12 +388,13 @@ function CRUD(options) {
       }
       crud.toQuery()
     },
-    // 排序改变
+    // 获取排序参数
     setHeaderClass(val) {
       if (crud.sortField.has(val.column.property)) {
         val.column.order = crud.sortField.get(val.column.property)
       }
     },
+    // 组装排序参数
     updateOrderBy() {
       const sort = []
       for (const [key, value] of crud.sortField) {
@@ -401,7 +402,6 @@ function CRUD(options) {
           sort.push(key + ',' + (value === 'ascending' ? 'asc' : 'desc'))
         }
       }
-      console.log('sort', crud.sort)
       if (sort.length > 0) {
         return sort
       } else {
