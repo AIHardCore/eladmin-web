@@ -35,7 +35,7 @@
       <el-dialog :close-on-click-modal="false" :before-close="crud.cancelCU" :visible.sync="crud.status.cu > 0" :title="crud.status.title" width="500px">
         <el-form ref="form" :model="form" :rules="rules" size="small" label-width="120px">
           <el-form-item label="昵称" prop="nickName">
-            <el-input v-model="form.nickName" />
+            <el-input v-model="form.nickName" :disabled="form.createBy === 'System'" />
           </el-form-item>
           <el-form-item label="头像" prop="headImgUrl">
             <el-input v-model="form.headImgUrl" :disabled="form.createBy === 'System'" />
