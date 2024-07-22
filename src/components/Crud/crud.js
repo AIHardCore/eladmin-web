@@ -33,6 +33,8 @@ function CRUD(options) {
     defaultForm: () => {},
     // 排序规则，默认 id 降序， 支持多字段排序 ['id,desc', 'createTime,asc']
     sort: ['id,desc'],
+    // list默认只支持单列排序，新建一个map来存储多个列的排序数据
+    sortField: new Map(),
     // 等待时间
     time: 50,
     // CRUD Method
@@ -350,7 +352,7 @@ function CRUD(options) {
       return {
         page: crud.page.page - 1,
         size: crud.page.size,
-        sort: crud.sort,
+        sort: crud.updateOrderBy(),
         ...crud.query,
         ...crud.params
       }
@@ -375,6 +377,36 @@ function CRUD(options) {
     // 选择改变
     selectionChangeHandler(val) {
       crud.selections = val
+    },
+    // 排序改变
+    sortChangeHandler(val) {
+      const hasProp = crud.sortField.has(val.prop)
+      if (hasProp === true && val.order == null) {
+        crud.sortField.delete(val.prop)// 取消排序字段
+      } else {
+        crud.sortField.set(val.prop, val.order)
+      }
+      crud.toQuery()
+    },
+    // 排序改变
+    setHeaderClass(val) {
+      if (crud.sortField.has(val.column.property)) {
+        val.column.order = crud.sortField.get(val.column.property)
+      }
+    },
+    updateOrderBy() {
+      const sort = []
+      for (const [key, value] of crud.sortField) {
+        if (value) {
+          sort.push(key + ',' + (value === 'ascending' ? 'asc' : 'desc'))
+        }
+      }
+      console.log('sort', crud.sort)
+      if (sort.length > 0) {
+        return sort
+      } else {
+        return crud.sort
+      }
     },
     /**
      * 重置查询参数
