@@ -1,6 +1,6 @@
 import axios from 'axios'
 import router from '@/router/routers'
-import { Notification } from 'element-ui'
+import { Notify } from 'vant'
 import store from '../store'
 import { getAppToken, getToken } from '@/utils/auth'
 import Config from '@/settings'
@@ -41,8 +41,9 @@ service.interceptors.response.use(
       reader.readAsText(error.response.data, 'utf-8')
       reader.onload = function(e) {
         const errorMsg = JSON.parse(reader.result).message
-        Notification.error({
-          title: errorMsg,
+        Notify({
+          type: 'warning',
+          message: errorMsg,
           duration: 5000
         })
       }
@@ -52,8 +53,9 @@ service.interceptors.response.use(
         code = error.response.data.status
       } catch (e) {
         if (error.toString().indexOf('Error: timeout') !== -1) {
-          Notification.error({
-            title: '网络请求超时',
+          Notify({
+            type: 'warning',
+            message: '网络请求超时',
             duration: 5000
           })
           return Promise.reject(error)
@@ -86,22 +88,25 @@ service.interceptors.response.use(
             window.open(error.response.data.message, '_self')
           }
         } else if (code === 500) {
-          Notification.error({
-            title: '服务器开小差了，再试一下吧',
+          Notify({
+            type: 'warning',
+            message: '服务器开小差了，再试一下吧',
             duration: 5000
           })
         } else {
           const errorMsg = error.response.data.message
           if (errorMsg !== undefined) {
-            Notification.error({
-              title: errorMsg,
+            Notify({
+              type: 'warning',
+              message: errorMsg,
               duration: 5000
             })
           }
         }
       } else {
-        Notification.error({
-          title: '接口请求失败',
+        Notify({
+          type: 'warning',
+          message: '接口请求失败',
           duration: 5000
         })
       }
