@@ -1,51 +1,80 @@
 <template>
   <div class="my-container" style="background: #EDEDED;">
-    <div>
-      <van-card style="background: black;">
-        <template #title>
-          <div style="text-align: left; font-size: 15px; padding: 20px 0px 5px 0px; color: white;">
-            <span>{{ member.nickName }}</span>
+    <div style="background: black;">
+      <van-row type="flex" justify="space-between">
+        <van-col span="20">
+          <van-card style="background: black;">
+            <template #title>
+              <div style="text-align: left; font-size: 15px; padding: 20px 0px 5px 0px; color: white;">
+                <span>{{ member.nickName }}</span>
+              </div>
+            </template>
+            <template #desc>
+              <div style="text-align: left; color: white;">
+                <span>身份有效期：<span :class="{line_through : !member.type}">{{ member.vipExpiration }}</span></span>
+              </div>
+            </template>
+            <template #thumb>
+              <van-image round width="80" height="80" :src="member.headImgUrl" />
+            </template>
+            <template #tags>
+              <div style="text-align: left; padding: 5px 0px 0px 0px; color: white;">
+                <span>手机号：{{ member.phone? member.phone : '未设置' }}</span>
+              </div>
+            </template>
+          </van-card>
+        </van-col>
+        <van-col span="3">
+          <div style="text-align: left; color: white;height: 100%;position: relative">
+            <div style="text-align: center;width: 25px;position: absolute;top: 30%;left: 20%;" @click="showKefuImg">
+              <van-image style="width: 25px;height: 25px;font-size: 11px;" :src="kefu">客服</van-image>
+            </div>
           </div>
-        </template>
-        <template #desc>
-          <div style="text-align: left; color: white;">
-            <span>身份有效期：<span :class="{line_through : !member.type}">{{ member.vipExpiration }}</span></span>
-          </div>
-        </template>
-        <template #thumb>
-          <van-image round width="80" height="80" :src="member.headImgUrl" />
-        </template>
-        <template #tags>
-          <div style="text-align: left; padding: 5px 0px 0px 0px; color: white;">
-            <span>手机号：{{ member.phone? member.phone : '未设置' }}</span>
-          </div>
-        </template>
-      </van-card>
+        </van-col>
+      </van-row>
     </div>
     <div>
       <van-collapse v-model="activeNames">
-        <van-collapse-item title="编辑个人信息" name="1">
-          <el-form ref="member" :model="member">
-            <el-form-item
+        <van-collapse-item ref="memberInfo" title="编辑个人信息" name="1">
+          <!--          <el-form ref="member" :model="member">
+                      <el-form-item
+                        label="手机号"
+                        prop="phone"
+                        :rules="[
+                          { type: 'number', message: '手机号必须为数字值'},
+                          { validator: validatePhone, trigger: 'change' }
+                        ]"
+                      >
+                        <el-input
+                          v-model.number="member.phone"
+                          size="small"
+                          maxlength="11"
+                          placeholder="手机号"
+                          autocomplete="off"
+                          @blur="submitForm('member')"
+                        >
+                          <el-button slot="append" icon="el-icon-check" @click="submitForm('member')" />
+                        </el-input>
+                      </el-form-item>
+                    </el-form>-->
+          <van-form validate-first @failed="onFailed" @submit="submitForm">
+            <!-- 通过 validator 进行函数校验 -->
+            <van-field
+              v-model="member.phone"
               label="手机号"
-              prop="phone"
-              :rules="[
-                { type: 'number', message: '手机号必须为数字值'},
-                { validator: validatePhone, trigger: 'change' }
-              ]"
-            >
-              <el-input
-                v-model.number="member.phone"
-                size="small"
-                maxlength="11"
-                placeholder="手机号"
-                autocomplete="off"
-                @blur="submitForm('member')"
-              >
-                <el-button slot="append" icon="el-icon-check" @click="submitForm('member')" />
-              </el-input>
-            </el-form-item>
-          </el-form>
+              name="手机号"
+              type="number"
+              maxlength="11"
+              border
+              colon
+              show-word-limit
+              placeholder="手机号"
+              :rules="[{ validator,trigger: 'onChange', message: '请输入正确的电话号码' }]"
+            />
+            <div style="margin: 16px;">
+              <van-button round block type="info" native-type="submit">提交</van-button>
+            </div>
+          </van-form>
         </van-collapse-item>
       </van-collapse>
     </div>
@@ -97,7 +126,13 @@
       <p>可任意浏览所有内容！</p>
       <p>每周五更新深度、稀缺内容，不见不散！</p>
     </div>
+    <van-dialog v-model="showKefu" :show-cancel-button="false" :show-confirm-button="true" confirm-button-text="关闭">
+      <van-image :src="kefuQr" />
+    </van-dialog>
     <van-dialog v-model="showDialog" title="提示" message="支付完成，请稍等..." :before-close="beforeClose" />
+    <!--    <el-dialog :visible.sync="showKefu" width="90%">
+          <van-image :src="kefuQr"/>
+        </el-dialog>-->
   </div>
 </template>
 
@@ -106,15 +141,22 @@ import crudMy from '@/api/app/my'
 import crudOrder from '@/api/app/order'
 import wx from 'weixin-js-sdk'
 import avatar from '@/assets/images/avatar.png'
+import kefu from '@/assets/images/app/kefu.png'
+import kefuQr from '@/assets/images/app/kefuQr.jpg'
 import crudProduct from '@/api/app/produce'
-import { validatePhone } from '@/utils/validate'
 
 export default {
   name: 'MyPage',
   components: {},
   data() {
     return {
-      validatePhone: validatePhone,
+      kefu: kefu,
+      kefuQr: kefuQr,
+      showKefu: false,
+      validatePhone: (val) => {
+        debugger
+        return /^1([38][0-9]|4[014-9]|[59][0-35-9]|6[2567]|7[0-8])\d{8}$/.test(val)
+      },
       activeNames: ['0'],
       showDialog: false,
       phoneReadonly: true,
@@ -222,18 +264,20 @@ export default {
         done()
       }
     },
-    submitForm(formName) {
-      this.$refs[formName].validate((valid) => {
-        if (valid) {
-          crudMy.save(this.member).then(res => {
-            this.phoneReadonly = true
-            this.$toast('已保存')
-          }).catch(() => {})
-        } else {
-          console.log('error submit!!')
-          return false
-        }
-      })
+    showKefuImg() {
+      this.showKefu = true
+    },
+    validator(val) {
+      return /^1([38][0-9]|4[014-9]|[59][0-35-9]|6[2567]|7[0-8])\d{8}$/.test(val)
+    },
+    onFailed(errorInfo) {
+      console.log('failed', errorInfo)
+    },
+    submitForm(values) {
+      crudMy.save(this.member).then(res => {
+        this.$refs.memberInfo.toggle()
+        this.$toast('已保存')
+      }).catch(() => {})
     },
     wxPay(res) {
       // 调起微信支付
@@ -357,5 +401,16 @@ export default {
 
 .vipDesc p {
   text-align: center;
+}
+
+.wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+.block {
+  background-color: rgba(0,0,0,0);
 }
 </style>

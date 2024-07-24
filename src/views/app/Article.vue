@@ -81,9 +81,16 @@
               </van-col>
             </van-row>
           </div>
-          <p class="comment_message">
-            {{ item.message }}
-          </p>
+          <div class="comment_message">
+            <p>
+              {{ item.message }}
+            </p>
+            <van-divider dashed :style="{borderColor: '#cccccc',color: '#595858'}" />
+            <p v-if="item.reply" class="comment_reply">
+              <span class="comment_reply_nickName">作者</span>
+              <span>：{{ item.reply }}</span>
+            </p>
+          </div>
           <van-divider dashed :style="{borderColor: '#cccccc',color: '#595858'}" />
         </div>
       </van-list>
@@ -364,6 +371,12 @@ export default {
   word-wrap: break-word;      /* 旧版本浏览器支持 */
   overflow-wrap: break-word;
   padding-right: 20px;
+}
+.comment_reply{
+  padding-left: 12px;
+}
+.comment_reply_nickName{
+  color: dodgerblue;
 }
 .comment_message_user {
 }

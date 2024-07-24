@@ -13,7 +13,7 @@ const GlobalDrawerPlugin = {
             props: {
               ...propsData,
               title: '图库',
-              baseApi: process.env.VUE_APP_BASE_API === '/' ? '' : process.env.VUE_APP_BASE_API,
+              baseApi: window.location.protocol + '//' + window.location.host,
               onClose: (data) => {
                 // 调用传入的回调函数，并可以传递参数
                 onCloseCallback && onCloseCallback({ data })

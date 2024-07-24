@@ -27,7 +27,21 @@ router.beforeEach((to, from, next) => {
         next()
       } else {
         crudLogin.getAuthUrl().then(res => {
-          window.open(res, '_self')
+          let redirect_uri = ''
+          const index = res
+          const paramStr = res.substring(index + 1, res.length)
+          const params = paramStr.split('&')
+          params.forEach(element => {
+            if (element.indexOf('redirect_uri') >= 0) {
+              redirect_uri = element.substring(element.indexOf('=') + 1, element.length)
+            }
+          })
+          debugger
+          if (redirect_uri.indexOf(window.location.hostname) === -1) {
+            window.open(res.replace(redirect_uri, window.location.protocol + '//' + window.location.host), '_self')
+          } else {
+            window.open(res, '_self')
+          }
         }).catch(() => {})
       }
       NProgress.done()

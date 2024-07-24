@@ -28,7 +28,7 @@
     <div style="height: 100px;">
       <p style="height: 5%;width: 100%;text-align: center;font-size: 40%;padding-top: 5px">
         © 2024 修真界 ⋅
-        <a href="https://beian.miit.gov.cn/#/Integrated/index" target="_blank">粤ICP备2024280196</a>
+        <a href="https://beian.miit.gov.cn/#/Integrated/index" target="_blank">粤ICP备2024284744号-1</a>
       </p>
     </div>
   </div>

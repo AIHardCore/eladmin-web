@@ -3,7 +3,7 @@
     <!-- 轮播图 -->
     <van-swipe :autoplay="3000">
       <van-swipe-item v-for="(item, index) in banners" :key="index" stop-propagation="false" @click="openSpecial(item.special)">
-        <van-image :src="item.img" width="100%" height="250px" fit="fill" />
+        <van-image lazy-load :src="item.img" width="100%" height="250px" fit="fill" />
       </van-swipe-item>
     </van-swipe>
     <!-- /轮播图 -->
@@ -25,6 +25,7 @@
         v-for="item in list"
         :key="item.id"
         class="list_card"
+        lazy-load
         :thumb="item.cover"
         @click="read(item.id)"
       >
@@ -82,9 +83,11 @@ export default {
     ])
   },
   mounted() {
-    this.auth()
+    this.getBanners()
   },
   created() {
+    document.title = '修真界'
+    this.auth()
     this.path = this.$route.name
     const VUE_APP_VERSION = require('../../../package.json').version
     const vers = window.localStorage.getItem('appVersion')
@@ -93,8 +96,6 @@ export default {
       window.localStorage.setItem('appVersion', VUE_APP_VERSION)
       location.reload()
     }
-    document.title = '修真界'
-    this.beginLoadData()
   },
   methods: {
     auth() {
@@ -141,10 +142,6 @@ export default {
         this.loading = false
       }).catch(() => { })
       this.pageData.page += 1
-    },
-    beginLoadData() {
-      this.getBanners()
-      this.onLoad()
     },
     getBanners() {
       const pageData = {

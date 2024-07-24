@@ -70,7 +70,21 @@ service.interceptors.response.use(
         } else if (code === 403) {
           router.push({ path: '/401' })
         } else if (code === 1001) { // App端未登录，跳转到微信授权页面
-          window.open(error.response.data.message, '_self')
+          let redirect_uri = ''
+          const index = error.response.data.message
+          const paramStr = error.response.data.message.substring(index + 1, error.response.data.message.length)
+          const params = paramStr.split('&')
+          params.forEach(element => {
+            if (element.indexOf('redirect_uri') >= 0) {
+              redirect_uri = element.substring(element.indexOf('=') + 1, element.length)
+            }
+          })
+          debugger
+          if (redirect_uri.indexOf(window.location.hostname) === -1) {
+            window.open(error.response.data.message.replace(redirect_uri, window.location.protocol + '//' + window.location.host), '_self')
+          } else {
+            window.open(error.response.data.message, '_self')
+          }
         } else if (code === 500) {
           Notification.error({
             title: '服务器开小差了，再试一下吧',
