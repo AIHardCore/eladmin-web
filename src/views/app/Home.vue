@@ -56,8 +56,6 @@
 import crudArticle from '@/api/app/article'
 import crudBanner from '@/api/app/banner'
 import img from '@/assets/images/app/default_img.png'
-import { setAppToken } from '@/utils/auth'
-import crudLogin from '@/api/app/login'
 import { mapGetters } from 'vuex'
 
 export default {
@@ -88,45 +86,24 @@ export default {
     ])
   },
   mounted() {
+    this.getBanners()
+    // 添加滚动事件监听
+    window.addEventListener('scroll', this.debouncedHandleScroll)
   },
   created() {
     document.title = '修真界'
-    this.auth()
-    this.path = this.$route.name
-    const VUE_APP_VERSION = require('../../../package.json').version
-    const vers = window.localStorage.getItem('appVersion')
-    if (VUE_APP_VERSION !== vers) {
-      localStorage.clear()
-      window.localStorage.setItem('appVersion', VUE_APP_VERSION)
-      location.reload()
-    }
+    this.checkVersion()
   },
   methods: {
-    auth() {
-      const index = window.location.href.indexOf('?')
-      const paramStr = window.location.href.substring(index + 1, window.location.href.length)
-      const params = paramStr.split('&')
-      params.forEach(element => {
-        if (element.indexOf('code') >= 0) {
-          this.code = element.substring(element.indexOf('=') + 1, element.length)
-        }
-      })
-      if (this.code) {
-        this.login()
-      } else {
-        this.getBanners()
-        // 添加滚动事件监听
-        window.addEventListener('scroll', this.debouncedHandleScroll)
+    checkVersion() {
+      this.path = this.$route.name
+      const VUE_APP_VERSION = require('../../../package.json').version
+      const vers = window.localStorage.getItem('appVersion')
+      if (VUE_APP_VERSION !== vers) {
+        localStorage.clear()
+        window.localStorage.setItem('appVersion', VUE_APP_VERSION)
+        location.reload()
       }
-    },
-    login() {
-      const data = {
-        code: this.code
-      }
-      crudLogin.login(data).then(res => {
-        setAppToken(res.token, true)
-        location.href = window.location.protocol + '//' + window.location.host
-      }).catch(() => {})
     },
     beforeDestroy() {
       // 移除滚动事件监听
