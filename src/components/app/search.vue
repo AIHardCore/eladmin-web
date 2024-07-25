@@ -47,14 +47,6 @@ export default {
     // 添加滚动事件监听
     window.addEventListener('scroll', this.handleScroll)
   },
-  beforeDestroy() {
-    // 移除滚动事件监听
-    window.removeEventListener('scroll', this.debouncedHandleScroll)
-    // 清除可能还在等待的防抖函数
-    if (this.scrollTimeout) {
-      clearTimeout(this.scrollTimeout)
-    }
-  },
   methods: {
     onSearch(val) {
       if (this.searchText) {
@@ -80,14 +72,6 @@ export default {
         this.isFixed = false
         this.searchBgr = '#00000060'
       }
-    },
-    // 防抖处理函数
-    debouncedHandleScroll() {
-      if (this.scrollTimeout) {
-        clearTimeout(this.scrollTimeout) // 清除上一次的防抖
-      }
-      // 设置新的防抖
-      this.scrollTimeout = setTimeout(this.handleScroll, 200) // 200ms后执行handleScroll
     }
   }
 }

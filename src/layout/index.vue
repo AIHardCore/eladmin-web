@@ -56,26 +56,26 @@ export default {
         {
           title: '道学',
           to: '/Home',
-          active: require('../../assets/images/app/tabbar/taiji-active.png'),
-          inactive: require('../../assets/images/app/tabbar/taiji.png')
+          active: require('../assets/images/app/tabbar/taiji-active.png'),
+          inactive: require('../assets/images/app/tabbar/taiji.png')
         },
         {
           title: '古科学',
           to: '/Rank',
-          active: require('../../assets/images/app/tabbar/wodexiuhang-active.png'),
-          inactive: require('../../assets/images/app/tabbar/wodexiuhang.png')
+          active: require('../assets/images/app/tabbar/wodexiuhang-active.png'),
+          inactive: require('../assets/images/app/tabbar/wodexiuhang.png')
         },
         {
           title: '内丹学',
           to: '/Specials',
-          active: require('../../assets/images/app/tabbar/zuogang-active.png'),
-          inactive: require('../../assets/images/app/tabbar/zuogang.png')
+          active: require('../assets/images/app/tabbar/zuogang-active.png'),
+          inactive: require('../assets/images/app/tabbar/zuogang.png')
         },
         {
           title: '我的',
           to: '/My',
-          active: require('../../assets/images/app/tabbar/user-active.png'),
-          inactive: require('../../assets/images/app/tabbar/user.png')
+          active: require('../assets/images/app/tabbar/user-active.png'),
+          inactive: require('../assets/images/app/tabbar/user.png')
         }
       ]
     }

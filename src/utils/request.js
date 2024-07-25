@@ -72,6 +72,9 @@ service.interceptors.response.use(
         } else if (code === 403) {
           router.push({ path: '/401' })
         } else if (code === 1001) { // App端未登录，跳转到微信授权页面
+          debugger
+          if (this.$store.store.hasJump) return
+          this.$store.commit('JUMP', true)
           let redirect_uri = ''
           const index = error.response.data.message
           const paramStr = error.response.data.message.substring(index + 1, error.response.data.message.length)
@@ -81,7 +84,6 @@ service.interceptors.response.use(
               redirect_uri = element.substring(element.indexOf('=') + 1, element.length)
             }
           })
-          debugger
           if (redirect_uri.indexOf(window.location.hostname) === -1) {
             window.open(error.response.data.message.replace(redirect_uri, window.location.protocol + '//' + window.location.host), '_self')
           } else {

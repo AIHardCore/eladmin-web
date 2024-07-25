@@ -5,19 +5,9 @@ Vue.use(Router)
 
 export const constantRouterMap = [
   {
-    path: '/404',
-    component: (resolve) => require(['@/views/features/404'], resolve),
-    hidden: true
-  },
-  {
-    path: '/401',
-    component: (resolve) => require(['@/views/features/401'], resolve),
-    hidden: true
-  },
-  {
     path: '/',
     redirect: '/Home',
-    component: () => import('@/layout/app/index'),
+    component: () => import('@/layout/index'),
     hidden: true,
     children: [
       {

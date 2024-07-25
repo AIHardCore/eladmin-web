@@ -1,5 +1,5 @@
 <template>
-  <div class="home">
+  <div class="home" style="overflow:hidden">
     <!-- 轮播图 -->
     <van-swipe :autoplay="3000">
       <van-swipe-item v-for="(item, index) in banners" :key="index" stop-propagation="false" @click="openSpecial(item.special)">
@@ -11,40 +11,44 @@
     <van-divider dashed />
     <!-- /分类列表 -->
     <!-- 文章列表 -->
-    <van-list
-      v-model="loading"
-      class="list"
-      :finished="finished"
-      offset="50"
-      @load="onLoad"
-    >
-      <template slot="finished">
-        <span style="text-align: center;color: black;width: 100%;">没有更多了...</span>
-      </template>
-      <van-card
-        v-for="item in list"
-        :key="item.id"
-        class="list_card"
-        lazy-load
-        :thumb="item.cover"
-        @click="read(item.id)"
-      >
-        <template #desc>
-          <div style="text-align: left;font-size: 17px">
-            <br>
-            <span class="van-multi-ellipsis--l3">{{ item.title }}</span>
-          </div>
-        </template>
-        <template #footer>
-          <div>
-            <span style="color: chocolate;font-size: 10px">{{ item.reading }}人</span>
-            <span style="font-size: 10px;">已经火速观看</span>
-          </div>
-          <van-divider dashed :style="{ color: 'black', borderColor: 'black', padding: '0 16px' }" />
-        </template>
-      </van-card>
-    </van-list>
-    <!-- /文章列表 -->
+    <div>
+      <van-pull-refresh v-model="refreshing" :disabled="refDisabled" @refresh="onRefresh">
+        <van-list
+          v-model="loading"
+          class="list"
+          :finished="finished"
+          offset="50"
+          @load="onLoad"
+        >
+          <template slot="finished">
+            <span style="text-align: center;color: black;width: 100%;">没有更多了...</span>
+          </template>
+          <van-card
+            v-for="item in list"
+            :key="item.id"
+            class="list_card"
+            lazy-load
+            :thumb="item.cover"
+            @click="read(item.id)"
+          >
+            <template #desc>
+              <div style="text-align: left;font-size: 17px">
+                <br>
+                <span class="van-multi-ellipsis--l3">{{ item.title }}</span>
+              </div>
+            </template>
+            <template #footer>
+              <div>
+                <span style="color: chocolate;font-size: 10px">{{ item.reading }}人</span>
+                <span style="font-size: 10px;">已经火速观看</span>
+              </div>
+              <van-divider dashed :style="{ color: 'black', borderColor: 'black', padding: '0 16px' }" />
+            </template>
+          </van-card>
+        </van-list>
+      </van-pull-refresh>
+      <!-- /文章列表 -->
+    </div>
   </div>
 </template>
 
@@ -52,7 +56,7 @@
 import crudArticle from '@/api/app/article'
 import crudBanner from '@/api/app/banner'
 import img from '@/assets/images/app/default_img.png'
-import { removeAppToken, setAppToken, getAppToken } from '@/utils/auth'
+import { setAppToken } from '@/utils/auth'
 import crudLogin from '@/api/app/login'
 import { mapGetters } from 'vuex'
 
@@ -60,6 +64,7 @@ export default {
   name: 'HomePage',
   data() {
     return {
+      refDisabled: false,
       code: null,
       banners: [
         { img: img }
@@ -83,7 +88,6 @@ export default {
     ])
   },
   mounted() {
-    this.getBanners()
   },
   created() {
     document.title = '修真界'
@@ -99,9 +103,6 @@ export default {
   },
   methods: {
     auth() {
-      if (!getAppToken()) {
-        removeAppToken()
-      }
       const index = window.location.href.indexOf('?')
       const paramStr = window.location.href.substring(index + 1, window.location.href.length)
       const params = paramStr.split('&')
@@ -112,17 +113,44 @@ export default {
       })
       if (this.code) {
         this.login()
+      } else {
+        this.getBanners()
+        // 添加滚动事件监听
+        window.addEventListener('scroll', this.debouncedHandleScroll)
       }
     },
     login() {
       const data = {
         code: this.code
       }
-      console.log('开始登录...code=' + this.code)
       crudLogin.login(data).then(res => {
         setAppToken(res.token, true)
         location.href = window.location.protocol + '//' + window.location.host
       }).catch(() => {})
+    },
+    beforeDestroy() {
+      // 移除滚动事件监听
+      window.removeEventListener('scroll', this.debouncedHandleScroll)
+      // 清除可能还在等待的防抖函数
+      if (this.scrollTimeout) {
+        clearTimeout(this.scrollTimeout)
+      }
+    },
+    handleScroll() {
+      const scrollTop = document.documentElement.scrollTop // 滚动高度
+      if (scrollTop === 0) {
+        this.refDisabled = false
+      } else {
+        this.refDisabled = true
+      }
+    },
+    // 防抖处理函数
+    debouncedHandleScroll() {
+      if (this.scrollTimeout) {
+        clearTimeout(this.scrollTimeout) // 清除上一次的防抖
+      }
+      // 设置新的防抖
+      this.scrollTimeout = setTimeout(this.handleScroll, 100) // 200ms后执行handleScroll
     },
     onLoad() {
       if (this.refreshing) {
@@ -132,16 +160,25 @@ export default {
       }
       // 异步更新数据
       crudArticle.list(this.pageData).then(res => {
-        if (res.content.length === 0) {
-          this.finished = true
-        }
         for (let i = 0; i < res.content.length; i++) {
           this.list.push(res.content[i])
         }
         // 加载状态结束
         this.loading = false
+        if (this.list.length >= res.totalElements) {
+          this.finished = true
+        }
       }).catch(() => { })
       this.pageData.page += 1
+    },
+    onRefresh() {
+      // 清空列表数据
+      this.finished = false
+
+      // 重新加载数据
+      // 将 loading 设置为 true，表示处于加载状态
+      this.loading = true
+      this.onLoad()
     },
     getBanners() {
       const pageData = {
@@ -170,6 +207,8 @@ export default {
 
 <style scoped>
 .home {
+  height: 100vh;
+  overflow: auto !important;
   min-height: 100vh; /* 设置最小高度为视口的100% */
   overflow-y: auto; /* 如果内容超出屏幕，可以滚动查看 */
 }

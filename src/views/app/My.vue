@@ -1,5 +1,13 @@
 <template>
   <div class="my-container" style="background: #EDEDED;">
+    <van-dialog v-model="showKefu" :show-cancel-button="false" :show-confirm-button="true" confirm-button-text="关闭">
+      <van-image lazy-load :src="kefuQr">
+        <template v-slot:loading>
+          <van-loading type="spinner" size="20" />
+        </template>
+      </van-image>
+    </van-dialog>
+    <van-dialog v-model="showDialog" title="提示" message="支付完成，请稍等..." :before-close="beforeClose" />
     <div style="background: black;">
       <van-row type="flex" justify="space-between">
         <van-col span="20">
@@ -36,27 +44,6 @@
     <div>
       <van-collapse v-model="activeNames">
         <van-collapse-item ref="memberInfo" title="编辑个人信息" name="1">
-          <!--          <el-form ref="member" :model="member">
-                      <el-form-item
-                        label="手机号"
-                        prop="phone"
-                        :rules="[
-                          { type: 'number', message: '手机号必须为数字值'},
-                          { validator: validatePhone, trigger: 'change' }
-                        ]"
-                      >
-                        <el-input
-                          v-model.number="member.phone"
-                          size="small"
-                          maxlength="11"
-                          placeholder="手机号"
-                          autocomplete="off"
-                          @blur="submitForm('member')"
-                        >
-                          <el-button slot="append" icon="el-icon-check" @click="submitForm('member')" />
-                        </el-input>
-                      </el-form-item>
-                    </el-form>-->
           <van-form validate-first @failed="onFailed" @submit="submitForm">
             <!-- 通过 validator 进行函数校验 -->
             <van-field
@@ -126,13 +113,6 @@
       <p>可任意浏览所有内容！</p>
       <p>每周五更新深度、稀缺内容，不见不散！</p>
     </div>
-    <van-dialog v-model="showKefu" :show-cancel-button="false" :show-confirm-button="true" confirm-button-text="关闭">
-      <van-image :src="kefuQr" />
-    </van-dialog>
-    <van-dialog v-model="showDialog" title="提示" message="支付完成，请稍等..." :before-close="beforeClose" />
-    <!--    <el-dialog :visible.sync="showKefu" width="90%">
-          <van-image :src="kefuQr"/>
-        </el-dialog>-->
   </div>
 </template>
 
@@ -153,10 +133,6 @@ export default {
       kefu: kefu,
       kefuQr: kefuQr,
       showKefu: false,
-      validatePhone: (val) => {
-        debugger
-        return /^1([38][0-9]|4[014-9]|[59][0-35-9]|6[2567]|7[0-8])\d{8}$/.test(val)
-      },
       activeNames: ['0'],
       showDialog: false,
       phoneReadonly: true,
