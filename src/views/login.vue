@@ -140,7 +140,7 @@ export default {
           }
           this.$store.dispatch('Login', user).then(() => {
             this.loading = false
-            this.$router.push({ path: this.redirect || '/dashboard' })
+            this.$router.push({ path: this.redirect || '/' })
           }).catch(() => {
             this.loading = false
             this.getCode()

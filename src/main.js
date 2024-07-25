@@ -26,14 +26,6 @@ import router from './router/routers'
 import './assets/icons' // icon
 import './router/index' // permission control
 
-// 导入Vant2
-import Vant, { Lazyload, Toast, Dialog } from 'vant'
-import 'vant/lib/index.css'
-
-Vue.use(Vant)
-Vue.use(Toast)
-Vue.use(Dialog)
-Vue.use(Lazyload)
 Vue.use(checkPer)
 Vue.use(permission)
 Vue.use(dict)

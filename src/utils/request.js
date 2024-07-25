@@ -2,7 +2,7 @@ import axios from 'axios'
 import router from '@/router/routers'
 import { Notification } from 'element-ui'
 import store from '../store'
-import { getAppToken, getToken } from '@/utils/auth'
+import { getToken } from '@/utils/auth'
 import Config from '@/settings'
 import Cookies from 'js-cookie'
 
@@ -15,9 +15,6 @@ const service = axios.create({
 // request拦截器
 service.interceptors.request.use(
   config => {
-    if (getAppToken()) {
-      config.headers['Token'] = getAppToken() // 让每个请求携带自定义token 请根据实际情况自行修改
-    }
     if (getToken()) {
       config.headers['Authorization'] = getToken() // 让每个请求携带自定义token 请根据实际情况自行修改
     }
