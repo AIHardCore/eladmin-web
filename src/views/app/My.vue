@@ -1,7 +1,7 @@
 <template>
   <div class="my-container" style="background: #EDEDED;">
     <van-dialog v-model="showKefu" :show-cancel-button="false" :show-confirm-button="true" confirm-button-text="关闭">
-      <van-image lazy-load :src="kefuQr">
+      <van-image lazy-load src="https://sanchuanwenhua.com/static/kefuQr.jpg?imageView2/2/w/500/h/500/q/75">
         <template v-slot:loading>
           <van-loading type="spinner" size="20" />
         </template>
