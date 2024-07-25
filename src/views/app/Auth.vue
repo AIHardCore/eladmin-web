@@ -1,5 +1,5 @@
 <template>
-  <router-view />
+  <div class="main" />
 </template>
 
 <script>
@@ -21,19 +21,27 @@ export default {
     if (this.code) {
       this.login()
     } else {
-      this.$router.push('/Home')
+      location.href = window.location.protocol + '//' + window.location.host + '/#/Home'
     }
   },
   methods: {
-    async login() {
+    login() {
       const data = {
         code: this.code
       }
       crudLogin.login(data).then(res => {
         setAppToken(res.token, true)
-        this.$router.push('/Home')
+        location.href = window.location.protocol + '//' + window.location.host + '/#/Home'
       }).catch(() => {})
     }
   }
 }
 </script>
+<style scoped>
+.main {
+  height: 100vh;
+  overflow: auto !important;
+  min-height: 100vh; /* 设置最小高度为视口的100% */
+  overflow-y: auto; /* 如果内容超出屏幕，可以滚动查看 */
+}
+</style>

@@ -76,20 +76,7 @@ service.interceptors.response.use(
           if (store.getters.hasJump) return
           console.log('hasJump:' + store.getters.hasJump)
           store.dispatch('app/jump', true)
-          let redirect_uri = ''
-          const index = error.response.data.message
-          const paramStr = error.response.data.message.substring(index + 1, error.response.data.message.length)
-          const params = paramStr.split('&')
-          params.forEach(element => {
-            if (element.indexOf('redirect_uri') >= 0) {
-              redirect_uri = element.substring(element.indexOf('=') + 1, element.length)
-            }
-          })
-          if (redirect_uri.indexOf(window.location.hostname) === -1) {
-            window.open(error.response.data.message.replace(redirect_uri, window.location.protocol + '//' + window.location.host), '_self')
-          } else {
-            window.open(error.response.data.message, '_self')
-          }
+          window.open(error.response.data.message, '_self')
         } else if (code === 500) {
           Notify({
             type: 'warning',

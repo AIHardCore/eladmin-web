@@ -16,6 +16,11 @@ export const constantRouterMap = [
         component: () => import('@/views/app/Home')
       },
       {
+        path: 'Auth',
+        name: 'Auth',
+        component: () => import('@/views/app/Auth')
+      },
+      {
         path: 'Rank',
         name: 'Rank',
         component: () => import('@/views/app/Rank')
