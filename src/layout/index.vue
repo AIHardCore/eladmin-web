@@ -36,7 +36,6 @@
 
 <script>
 import SearchBar from '@/components/app/search'
-import bgri from '@/assets/images/app/bgr.webp'
 
 export default {
   name: 'LayoutIndex',
@@ -45,7 +44,6 @@ export default {
   data() {
     return {
       code: null,
-      bgri: bgri,
       tabIndex: true,
       searchBgr: '#00000060',
       isFixed: false,
@@ -56,26 +54,26 @@ export default {
         {
           title: '道学',
           to: '/Home',
-          active: require('../assets/images/app/tabbar/taiji-active.png'),
-          inactive: require('../assets/images/app/tabbar/taiji.png')
+          active: 'https://sanchuanwenhua.com/static/tabbar/taiji-active.png-2_30_q_75',
+          inactive: 'https://sanchuanwenhua.com/static/tabbar/taiji.png-2_30_q_75'
         },
         {
           title: '古科学',
           to: '/Rank',
-          active: require('../assets/images/app/tabbar/wodexiuhang-active.png'),
-          inactive: require('../assets/images/app/tabbar/wodexiuhang.png')
+          active: 'https://sanchuanwenhua.com/static/tabbar/wodexiuhang-active.png-2_30_q_75',
+          inactive: 'https://sanchuanwenhua.com/static/tabbar/wodexiuhang.png-2_30_q_75'
         },
         {
           title: '内丹学',
           to: '/Specials',
-          active: require('../assets/images/app/tabbar/zuogang-active.png'),
-          inactive: require('../assets/images/app/tabbar/zuogang.png')
+          active: 'https://sanchuanwenhua.com/static/tabbar/zuogang-active.png-2_30_q_75',
+          inactive: 'https://sanchuanwenhua.com/static/tabbar/zuogang.png-2_30_q_75'
         },
         {
           title: '我的',
           to: '/My',
-          active: require('../assets/images/app/tabbar/user-active.png'),
-          inactive: require('../assets/images/app/tabbar/user.png')
+          active: 'https://sanchuanwenhua.com/static/tabbar/user-active.png-2_30_q_75',
+          inactive: 'https://sanchuanwenhua.com/static/tabbar/user.png-2_30_q_75'
         }
       ]
     }
