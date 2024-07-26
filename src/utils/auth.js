@@ -1,22 +1,11 @@
 import Cookies from 'js-cookie'
 import Config from '@/settings'
-
-const TokenKey = Config.TokenKey
+import router from '@/router/routers'
 
 const AppTokenKey = Config.TokenKeyApp
 
-export function getToken() {
-  return Cookies.get(TokenKey)
-}
-
 export function getAppToken() {
   return Cookies.get(AppTokenKey)
-}
-
-export function setToken(token, rememberMe) {
-  if (rememberMe) {
-    return Cookies.set(TokenKey, token, { expires: Config.tokenCookieExpires })
-  } else return Cookies.set(TokenKey, token)
 }
 
 export function setAppToken(token, rememberMe) {
@@ -25,10 +14,14 @@ export function setAppToken(token, rememberMe) {
   } else return Cookies.set(AppTokenKey, token)
 }
 
-export function removeToken() {
-  return Cookies.remove(TokenKey)
-}
-
 export function removeAppToken() {
   return Cookies.remove(AppTokenKey)
+}
+
+export function jumpToWx(url) {
+  const ru = encodeURIComponent(window.location.protocol + '//' + window.location.host + (router.options.mode === 'hash' ? '/#/' : router.options.base) + '/Auth')
+  debugger
+  console.log(ru)
+  url = url.replace('{REDIRECT_URI}', ru)
+  window.open(url, '_self')
 }

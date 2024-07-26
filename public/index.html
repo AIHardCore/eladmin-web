@@ -12,7 +12,15 @@
     <van-number-keyboard safe-area-inset-bottom />
     <link rel="icon" href="<%= BASE_URL %>favicon.ico">
     <title><%= webpackConfig.name %></title>
+    <!-- 引入样式 -->
+    <% if(process.env.NODE_ENV === 'production') {for(var css of htmlWebpackPlugin.options.cdn.css) { %>
+    <link rel="stylesheet" href="<%=css%>">
+    <% }} %>
   </head>
+  <!-- 引入JS -->
+  <% if(process.env.NODE_ENV === 'production') {for(var js of htmlWebpackPlugin.options.cdn.js) { %>
+  <script src="<%=js%>"></script>
+  <% }} %>
   <body>
     <div id="app"></div>
     <!-- built files will be auto injected -->

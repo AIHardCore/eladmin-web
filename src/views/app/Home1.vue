@@ -53,10 +53,7 @@
 </template>
 
 <script>
-import crudArticle from '@/api/app/article'
-import crudBanner from '@/api/app/banner'
 import img from '@/assets/images/app/default_img.png'
-import { mapGetters } from 'vuex'
 
 export default {
   name: 'HomePage',
@@ -79,18 +76,13 @@ export default {
       }
     }
   },
-  computed: {
-    ...mapGetters([
-      'imagesUploadApi',
-      'baseApi'
-    ])
-  },
   mounted() {
     this.getBanners()
     // 添加滚动事件监听
     window.addEventListener('scroll', this.debouncedHandleScroll)
   },
   created() {
+    document.title = '修真界'
     this.checkVersion()
   },
   methods: {
@@ -134,17 +126,41 @@ export default {
         this.refreshing = false
         this.pageData.page = 0
       }
-      // 异步更新数据
-      crudArticle.list(this.pageData).then(res => {
-        for (let i = 0; i < res.content.length; i++) {
-          this.list.push(res.content[i])
+      this.list = [
+        {
+          id: 10,
+          cover: 'http://sanchuanwenhua.com/%E5%8D%97%E6%B5%B7%E9%A3%8E%E6%B0%B4%E6%88%98/1.jpg-2_500_500_q_75',
+          title: '扭转国运的巨型风水阵：南门美国、日本、菲律宾等“新八国联军”崩坏记！',
+          reading: 70
+        },
+        {
+          id: 11,
+          cover: 'http://sanchuanwenhua.com/%E5%8F%A4%E7%A7%91%E5%AD%A6/%E5%8F%A4%E7%A7%91%E5%AD%A6.webp-2_500_500_q_75',
+          title: '古科学底层逻辑核心：取名、解卦、择业、断凶吉，让你占据天时地利人和！',
+          reading: 58
+        },
+        {
+          id: 16,
+          cover: 'http://sanchuanwenhua.com/%E7%99%BE%E6%97%A5%E7%AD%91%E5%9F%BA/1.jpg-2_500_500_q_75',
+          title: '百日筑基详解，附两个入道的“性命双修”方便法门',
+          reading: 56
+        },
+        {
+          id: 17,
+          cover: 'http://sanchuanwenhua.com/17.jpg-2_500_500_q_75',
+          title: '仙人之路：修道过程全解（文末附利用五大行补财库之法）',
+          reading: 89
+        },
+        {
+          id: 18,
+          cover: 'https://sanchuanwenhua.com/%E6%94%B9%E8%BF%90%E6%8C%87%E5%8D%97/3.webp-2_500_500_q_75',
+          title: '道家“三位一体”命格改运原理：洞穿命运真相，改变原有命运的简易操作指南',
+          reading: 63
         }
-        // 加载状态结束
-        this.loading = false
-        if (this.list.length >= res.totalElements) {
-          this.finished = true
-        }
-      }).catch(() => { })
+      ]
+      // 加载状态结束
+      this.loading = false
+      this.finished = true
       this.pageData.page += 1
     },
     onRefresh() {
@@ -157,15 +173,16 @@ export default {
       this.onLoad()
     },
     getBanners() {
-      const pageData = {
-        page: 0,
-        size: 9999,
-        sort: ['sort,asc'],
-        enabled: true
-      }
-      crudBanner.list(pageData).then(res => {
-        this.banners = res.content
-      }).catch(() => { })
+      this.banners = [
+        {
+          img: 'http://sanchuanwenhua.com/%E4%BF%AE%E7%9C%9F2.jpg-2_500_500_q_75',
+          special: 5
+        },
+        {
+          img: 'http://sanchuanwenhua.com/%E5%91%BD%E5%8A%9F2.jpg-2_500_500_q_75',
+          special: 6
+        }
+      ]
     },
     openSpecial(data) {
       this.$router.push({

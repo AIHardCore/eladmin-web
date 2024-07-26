@@ -2,7 +2,7 @@ import axios from 'axios'
 import router from '@/router/routers'
 import { Notify } from 'vant'
 import store from '../store'
-import { getAppToken, getToken } from '@/utils/auth'
+import { getAppToken, jumpToWx } from '@/utils/auth'
 import Config from '@/settings'
 import Cookies from 'js-cookie'
 
@@ -17,9 +17,6 @@ service.interceptors.request.use(
   config => {
     if (getAppToken()) {
       config.headers['Token'] = getAppToken() // 让每个请求携带自定义token 请根据实际情况自行修改
-    }
-    if (getToken()) {
-      config.headers['Authorization'] = getToken() // 让每个请求携带自定义token 请根据实际情况自行修改
     }
     config.headers['Content-Type'] = 'application/json'
     return config
@@ -76,13 +73,15 @@ service.interceptors.response.use(
           if (store.getters.hasJump) return
           console.log('hasJump:' + store.getters.hasJump)
           store.dispatch('app/jump', true)
-          window.open(error.response.data.message, '_self')
+          jumpToWx(error.response.data.message)
         } else if (code === 500) {
-          Notify({
-            type: 'warning',
-            message: '服务器开小差了，再试一下吧',
-            duration: 5000
-          })
+          if (error.response.data.message.indexOf('获取AccessToken信息失败') === -1) {
+            Notify({
+              type: 'warning',
+              message: '服务器开小差了，再试一下吧',
+              duration: 5000
+            })
+          }
         } else {
           const errorMsg = error.response.data.message
           if (errorMsg !== undefined) {

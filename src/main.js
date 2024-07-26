@@ -19,9 +19,10 @@ import Vant, { Lazyload, Toast, Dialog } from 'vant'
 import 'vant/lib/index.css'
 
 Vue.use(Vant)
+Vue.use(Lazyload)
 Vue.use(Toast)
 Vue.use(Dialog)
-Vue.use(Lazyload)
+
 Vue.use(permission)
 
 Vue.config.productionTip = false

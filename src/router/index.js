@@ -1,13 +1,14 @@
 import router from './routers'
 import NProgress from 'nprogress' // progress bar
 import 'nprogress/nprogress.css'// progress bar style
-import { getAppToken } from '@/utils/auth' // getToken from cookie
+import { getAppToken, jumpToWx } from '@/utils/auth' // getToken from cookie
 import crudLogin from '@/api/app/login'
 
 NProgress.configure({ showSpinner: false })// NProgress Configuration
 
 const whiteListOfApp = ['/Auth', '/Home']// no redirect whitelist
 router.beforeEach((to, from, next) => {
+  console.log(to.path)
   NProgress.start()
   // 验证token
   if (getAppToken()) {
@@ -19,7 +20,7 @@ router.beforeEach((to, from, next) => {
       next()
     } else {
       crudLogin.getAuthUrl().then(res => {
-        window.open(res, '_self')
+        jumpToWx(res)
       }).catch(() => {})
     }
     NProgress.done()

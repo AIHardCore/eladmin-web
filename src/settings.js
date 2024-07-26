@@ -2,7 +2,7 @@ module.exports = {
   /**
    * @description 网站标题
    */
-  title: '修真界',
+  title: '正在进入修真界...',
   /**
    * @description 是否显示 tagsView
    */

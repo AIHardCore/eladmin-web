@@ -84,6 +84,7 @@ export default {
     }
   },
   created() {
+    document.title = '修真界'
     this.$store.state.routeName = this.$route.name
   }
 }

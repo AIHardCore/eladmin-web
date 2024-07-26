@@ -55,8 +55,10 @@ export const constantRouterMap = [
 ]
 
 export default new Router({
-  mode: 'hash',
-  // mode: 'history',
+  // mode: 'hash',
+  mode: 'history',
+  // base: '/test/',
+  base: '',
   scrollBehavior: () => ({ y: 0 }),
   routes: constantRouterMap
 })
