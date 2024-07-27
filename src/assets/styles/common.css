@@ -1,0 +1,17 @@
+.van-list {
+  padding-bottom: 150px;
+}
+
+.container {
+  height: 100vh;
+  overflow: auto !important;
+  overflow-y: auto; /* 如果内容超出屏幕，可以滚动查看 */
+}
+
+.fixed-top {
+  position: fixed;
+  top: 0px;
+  left: 0;
+  width: 100%;
+  z-index: 1000; /* 确保元素在顶层 */
+}

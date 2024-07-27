@@ -19,7 +19,7 @@ export function removeAppToken() {
 }
 
 export function jumpToWx(url) {
-  const ru = encodeURIComponent(window.location.protocol + '//' + window.location.host + (router.options.mode === 'hash' ? '/#/' : router.options.base) + '/Auth')
+  const ru = encodeURIComponent(window.location.protocol + '//' + window.location.host + (router.options.mode === 'hash' ? '/#/' : router.options.base) + 'Auth')
   debugger
   console.log(ru)
   url = url.replace('{REDIRECT_URI}', ru)

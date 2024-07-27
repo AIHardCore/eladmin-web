@@ -69,12 +69,11 @@ service.interceptors.response.use(
         } else if (code === 403) {
           router.push({ path: '/401' })
         } else if (code === 1001) { // App端未登录，跳转到微信授权页面
-          console.log('hasJump:' + store.getters.hasJump)
           if (store.getters.hasJump) return
-          console.log('hasJump:' + store.getters.hasJump)
           store.dispatch('app/jump', true)
           jumpToWx(error.response.data.message)
         } else if (code === 500) {
+          console.log(error.response.data.message)
           if (error.response.data.message.indexOf('获取AccessToken信息失败') === -1) {
             Notify({
               type: 'warning',
@@ -85,9 +84,10 @@ service.interceptors.response.use(
         } else {
           const errorMsg = error.response.data.message
           if (errorMsg !== undefined) {
+            console.log(errorMsg)
             Notify({
               type: 'warning',
-              message: errorMsg,
+              message: '服务器开小差了，再试一下吧',
               duration: 5000
             })
           }

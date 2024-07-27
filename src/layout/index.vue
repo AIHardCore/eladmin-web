@@ -1,5 +1,5 @@
 <template>
-  <div class="layout-container">
+  <div class="layout-container" style="overflow: hidden">
     <!--    <div :style="'background-image:url('+ bgri +');'" class="main">-->
     <div class="main">
       <!--      <div v-show="this.$store.state.routeName !== 'My' && this.$store.state.routeName !== 'Auth'"><notice-bar /></div>-->

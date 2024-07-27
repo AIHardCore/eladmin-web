@@ -1,11 +1,7 @@
 <template>
-  <div class="my-container" style="background: #EDEDED;">
+  <div class="container">
     <van-dialog v-model="showKefu" :show-cancel-button="false" :show-confirm-button="true" confirm-button-text="关闭">
-      <van-image lazy-load src="https://sanchuanwenhua.com/static/kefuQr.jpg?imageView2/2/w/500/h/500/q/75">
-        <template v-slot:loading>
-          <van-loading type="spinner" size="20" />
-        </template>
-      </van-image>
+      <van-image lazy-load src="https://sanchuanwenhua.com/static/kefuQr.jpg?imageView2/2/w/500/h/500/q/75" />
     </van-dialog>
     <van-dialog v-model="showDialog" title="提示" message="支付完成，请稍等..." :before-close="beforeClose" />
     <div style="background: black;">
@@ -136,16 +132,17 @@ export default {
       activeNames: ['0'],
       showDialog: false,
       phoneReadonly: true,
-      showDesc: true,
-      showProduce: false,
-      toBuyVip: false,
+      showDesc: this.$route.query.showDesc !== undefined ? JSON.parse(this.$route.query.showDesc) : true,
+      showProduce: this.$route.query.showProduce !== undefined ? JSON.parse(this.$route.query.showProduce) : false,
+      toBuyVip: this.$route.query.toBuyVip !== undefined ? JSON.parse(this.$route.query.toBuyVip) : false,
       paying: false,
       paid: false,
       currProduce: {},
       member: {
         headImgUrl: avatar,
         nickName: '用户昵称',
-        vipExpiration: '无'
+        vipExpiration: '无',
+        type: false
       },
       produces: []
     }
@@ -158,9 +155,6 @@ export default {
     }
   },
   mounted() {
-    this.showDesc = this.$route.query.showDesc !== undefined ? this.$route.query.showDesc : true
-    this.showProduce = this.$route.query.showProduce !== undefined ? this.$route.query.showProduce : false
-    this.toBuyVip = this.$route.query.toBuyVip !== undefined ? this.$route.query.toBuyVip : false
     this.getAllProduce()
   },
   created() {

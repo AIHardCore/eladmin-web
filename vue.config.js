@@ -6,7 +6,7 @@ const CompressionPlugin = require('compression-webpack-plugin')
 function resolve(dir) {
   return path.join(__dirname, dir)
 }
-const isProd = process.env.NODE_ENV === 'production'
+const isProd = process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'test'
 let cdn = { css: [], js: [] }
 let externals = {}
 if (isProd) {
@@ -14,15 +14,12 @@ if (isProd) {
   externals = {
     // key(包名) / value(这个值 是 需要在CDN中获取js, 相当于 获取的js中 的该包的全局的对象的名字)
     'vue': 'Vue' // 后面的名字不能随便起 应该是 js中的全局对象名
-    // 'vant': 'Vant' // 都是js中全局定义的
   }
   cdn = {
     css: [
-      process.env.VUE_APP_PUBLIC_PATH_PROD + 'index.css' // 提前引入elementUI样式
     ], // 放置css文件目录
     js: [
-      process.env.VUE_APP_PUBLIC_PATH_PROD + 'vue.min.js', // vuejs
-      // process.env.VUE_APP_PUBLIC_PATH_PROD + 'vant.min.js' // vant
+      process.env.VUE_APP_PUBLIC_PATH_PROD + 'vue.min.js' // vuejs
     ] // 放置js文件目录
   }
 }
@@ -38,7 +35,7 @@ module.exports = {
   publicPath: isProd ? process.env.VUE_APP_PUBLIC_PATH_PROD : '/',
   // publicPath: '/',
   outputDir: 'dist',
-  assetsDir: require('./package.json').version,
+  assetsDir: require('./package.json').version + (process.env.ENV ? '_test' : ''),
   lintOnSave: process.env.NODE_ENV === 'development',
   productionSourceMap: false,
   devServer: {
@@ -76,12 +73,6 @@ module.exports = {
     // provide the app's title in webpack's name field, so that
     // it can be accessed in index.html to inject the correct title.
     name: name,
-    resolve: {
-      alias: {
-        '@': resolve('src'),
-        '@crud': resolve('src/components/Crud')
-      }
-    },
     plugins: [
       // https://www.ydyno.com/archives/1260.html 使用gzip解压缩静态文件
       new CompressionPlugin({

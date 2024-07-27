@@ -6,9 +6,8 @@ import crudLogin from '@/api/app/login'
 
 NProgress.configure({ showSpinner: false })// NProgress Configuration
 
-const whiteListOfApp = ['/Auth', '/Home']// no redirect whitelist
+const whiteListOfApp = ['/Auth']// no redirect whitelist
 router.beforeEach((to, from, next) => {
-  console.log(to.path)
   NProgress.start()
   // 验证token
   if (getAppToken()) {

@@ -1,6 +1,6 @@
 <template>
   <div class="special-container">
-    <ul>
+    <ul style="height: 100%; overflow-y: auto;padding: 0px 15px">
       <li v-for="item of list" :key="item.id">
         <div @click="openSpecial(item.id)">
           <div>
@@ -62,8 +62,9 @@ export default {
 
 <style scoped>
 .special-container {
-  padding:5px 15px;
-  min-height: 100vh; /* 设置最小高度为视口的100% */
+  padding-bottom: 150px;
+  height: 100%;
+  height: 105vh; /* 设置最小高度为视口的100% */
   overflow-y: auto; /* 如果内容超出屏幕，可以滚动查看 */
 }
 .special_name {

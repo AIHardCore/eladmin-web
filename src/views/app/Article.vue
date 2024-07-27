@@ -15,7 +15,7 @@
           <span>进入修真界，了解更多深度、稀缺、硬核内容，每周更新</span>
         </div>
         <div>
-          <van-button color="red" block to="/My">立即进入”修真界“</van-button>
+          <van-button color="red" block @click="toBuyVip">立即进入”修真界“</van-button>
         </div>
       </div>
     </div>
@@ -62,10 +62,14 @@
       <van-divider :style="{borderColor: 'black',color: '#595858'}">留言列表</van-divider>
       <van-list
         v-model="loading"
+        class="list"
         :finished="finished"
-        finished-text="没有更多了"
+        offset="50"
         @load="onLoad"
       >
+        <template slot="finished">
+          <span style="text-align: center;color: black;width: 100%;">没有更多了...</span>
+        </template>
         <div v-for="(item,index) in list" :key="index" class="comment">
           <div class="comment_message_user">
             <van-row type="flex" justify="space-between">
@@ -85,7 +89,7 @@
             <p>
               {{ item.message }}
             </p>
-            <van-divider dashed :style="{borderColor: '#cccccc',color: '#595858'}" />
+            <van-divider v-if="item.reply" dashed :style="{borderColor: '#cccccc',color: '#595858'}" />
             <p v-if="item.reply" class="comment_reply">
               <span class="comment_reply_nickName">作者</span>
               <span>：{{ item.reply }}</span>
@@ -95,13 +99,6 @@
         </div>
       </van-list>
     </div>
-    <van-overlay :show="showOverlay">
-      <div class="wrapper" @click.stop>
-        <div class="block">
-          <van-loading type="spinner" />
-        </div>
-      </div>
-    </van-overlay>
   </div>
 </template>
 
@@ -128,7 +125,6 @@ export default {
           return p1 + '***' + p3
         })
       },
-      showOverlay: false,
       showCommentText: false,
       articleHeight: 0,
       articleHeightNow: 0,
@@ -149,6 +145,7 @@ export default {
       article: {
         cover: defaultImg
       },
+      scrollTimeout: null,
       list: [],
       loading: false,
       finished: false,
@@ -207,7 +204,7 @@ export default {
       }
     )
     // 添加滚动事件监听
-    window.addEventListener('scroll', this.handleScroll)
+    window.addEventListener('scroll', this.debouncedHandleScroll)
   },
   methods: {
     loadArticle() {
@@ -252,20 +249,18 @@ export default {
           showCancelButton: false,
           confirmButtonText: '立即进入'
         }).then(() => {
-          this.$router.push({
-            path: '/My', query: {
-              showDesc: false,
-              showProduce: true,
-              toBuyVip: true
-            }
-          })
+          this.toBuyVip()
         })
       }
     },
-    onCommentBlur() {
-      /* if (!this.comment || !this.comment.message || this.comment.message.trim().length === 0) {
-        this.showCommentText = false
-      } */
+    toBuyVip() {
+      this.$router.push({
+        path: '/My', query: {
+          showDesc: false,
+          showProduce: true,
+          toBuyVip: true
+        }
+      })
     },
     addComment() {
       if (!this.comment || !this.comment.message || this.comment.message.trim().length === 0) {
@@ -282,15 +277,6 @@ export default {
           this.showCommentText = false
         }, 500)
       }).catch(() => {})
-    },
-    timestampToYMDHMS(date) {
-      const year = date.getUTCFullYear()
-      const month = ('0' + (date.getUTCMonth() + 1)).slice(-2) // 月份是从0开始的
-      const day = ('0' + date.getUTCDate()).slice(-2)
-      const hours = ('0' + date.getUTCHours()).slice(-2)
-      const minutes = ('0' + date.getUTCMinutes()).slice(-2)
-      const seconds = ('0' + date.getUTCSeconds()).slice(-2)
-      return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`
     },
     like(comment) {
       if (comment.active) {
@@ -321,6 +307,8 @@ export default {
       const scrollHeight = document.documentElement.scrollHeight // 内容高度
       // 判断是否滚动到底部
       const isBottom = scrollHeight - (scrollTop + clientHeight) < 1 // 这里的1是一个阈值，可以根据需要调整
+      console.log(isBottom)
+      console.log(this.$refs.articleContent.offsetHeight + this.$refs.articleContent.getBoundingClientRect().top < 100)
       if (this.$refs.articleContent.offsetHeight + this.$refs.articleContent.getBoundingClientRect().top < 100 || isBottom) {
         this.topClassName = 'arrow-up'
       } else {
@@ -333,7 +321,7 @@ export default {
         clearTimeout(this.scrollTimeout) // 清除上一次的防抖
       }
       // 设置新的防抖
-      this.scrollTimeout = setTimeout(this.handleScroll, 1000) // 200ms后执行handleScroll
+      this.scrollTimeout = setTimeout(this.handleScroll, 200) // 200ms后执行handleScroll
     }
   }
 }
@@ -342,7 +330,7 @@ export default {
 <style scoped>
 .article-container {
   background: rgba(0, 0, 0, 0);
-  min-height: 100vh; /* 设置最小高度为视口的100% */
+  height: 100vh; /* 设置最小高度为视口的100% */
   overflow-y: auto; /* 如果内容超出屏幕，可以滚动查看 */
   /* 禁止选中文字 */
   -webkit-user-select: none; /* Safari */
@@ -398,19 +386,6 @@ export default {
 }
 #article >>> img {
   max-width: 100%;
-}
-
-.wrapper {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-}
-
-.block {
-  width: 120px;
-  height: 120px;
-  text-align: center;
 }
 
 .block-sidebar {

@@ -95,7 +95,6 @@ watermark.set = (text, container, options) => {
   timer2 = setInterval(() => {
     setWatermark(text, container, options)
   }, 3000)
-  console.log(timer2)
   // 监听页面大小的变化
   window.onresize = () => {
     setWatermark(text, container, options)

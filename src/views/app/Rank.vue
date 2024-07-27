@@ -1,24 +1,26 @@
 <template>
-  <div class="rank-container">
+  <div class="container" style="overflow: hidden">
     <div ref="scrollContainer" :class="{'fixed-top': isFixed}">
       <van-tabs color="#000000" @click="clickCategorize">
         <van-tab v-for="(item, index) in categorizes" :key="index" title-style="font-weight: 700;font-size: 15px" :title="item.label" />
       </van-tabs>
     </div>
+    <!-- 文章列表 -->
     <van-list
       v-model="loading"
       class="list"
       :finished="finished"
-      offset="50"
+      offset="100"
       @load="onLoad"
     >
       <template slot="finished">
         <span style="text-align: center;color: black;width: 100%;">没有更多了...</span>
       </template>
       <van-card
-        v-for="item in list"
-        :key="item.article.id"
-        class="bgr"
+        v-for="(item,index) in list"
+        :key="index"
+        class="list_card"
+        lazy-load
         :thumb="item.article.cover"
         @click="read(item.article.id)"
       >
@@ -37,6 +39,7 @@
         </template>
       </van-card>
     </van-list>
+    <!-- /文章列表 -->
   </div>
 </template>
 
@@ -48,14 +51,14 @@ export default {
   props: {},
   data() {
     return {
-      loading: false,
-      finished: false,
-      refreshing: false,
       isFixed: false,
       scrollTimeout: null, // 用于存储setTimeout返回的ID
       offsetTop: 0,
       categorizes: [],
       list: [],
+      loading: false,
+      finished: false,
+      refreshing: false,
       pageData: {
         page: 0,
         size: 20,
@@ -65,22 +68,17 @@ export default {
       }
     }
   },
-  computed: {},
-  watch: {},
+  watch: {
+    isFixed(val) {
+      this.isFixed = val
+    }
+  },
   created() {
+    // 添加滚动事件监听
+    window.addEventListener('scroll', this.handleScroll)
     this.getTypes()
   },
   mounted() {
-    // 添加滚动事件监听
-    window.addEventListener('scroll', this.handleScroll)
-  },
-  beforeDestroy() {
-    // 移除滚动事件监听
-    window.removeEventListener('scroll', this.debouncedHandleScroll)
-    // 清除可能还在等待的防抖函数
-    if (this.scrollTimeout) {
-      clearTimeout(this.scrollTimeout)
-    }
   },
   methods: {
     onLoad() {
@@ -91,16 +89,16 @@ export default {
       }
       // 异步更新数据
       curdRank.list(this.pageData).then(res => {
-        if (res.content.length === 0) {
-          this.finished = true
-        }
         for (let i = 0; i < res.content.length; i++) {
           this.list.push(res.content[i])
         }
         // 加载状态结束
         this.loading = false
-        this.pageData.page++
+        if (this.list.length >= res.totalElements) {
+          this.finished = true
+        }
       }).catch(() => { })
+      this.pageData.page += 1
     },
     read(data) {
       this.$router.push({
@@ -113,11 +111,18 @@ export default {
       }).catch(() => { })
     },
     clickCategorize(name, title) {
+      window.scrollTo({
+        top: 0,
+        left: 0,
+        behavior: 'smooth' // 可选，平滑滚动
+      })
       this.pageData.type = name
       this.refreshing = true
+      this.finished = false
       this.onLoad()
     },
     handleScroll() {
+      debugger
       const scrollTop = window.pageYOffset
       if (scrollTop > this.offsetTop) {
         // 当页面向下滚动超过元素距离顶部的偏移量时，开始固定位置
@@ -126,24 +131,12 @@ export default {
         // 当页面向上滚动并且未超过偏移量时，取消固定位置
         this.isFixed = false
       }
-    },
-    // 防抖处理函数
-    debouncedHandleScroll() {
-      if (this.scrollTimeout) {
-        clearTimeout(this.scrollTimeout) // 清除上一次的防抖
-      }
-      // 设置新的防抖
-      this.scrollTimeout = setTimeout(this.handleScroll, 200) // 200ms后执行handleScroll
     }
   }
 }
 </script>
 
 <style scoped>
-.bgr {
-  background: rgba(0, 0, 0, 0);
-}
-
 .fixed-top {
   position: fixed;
   top: 46px;
@@ -152,8 +145,8 @@ export default {
   z-index: 1000; /* 确保元素在顶层 */
 }
 
-.rank-container {
-  min-height: 100vh; /* 设置最小高度为视口的100% */
-  overflow-y: auto; /* 如果内容超出屏幕，可以滚动查看 */
+.list_card {
+  background: rgba(0, 0, 0, 0);
 }
+
 </style>

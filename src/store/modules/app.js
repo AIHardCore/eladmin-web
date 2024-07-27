@@ -1,16 +1,23 @@
 const state = {
-  hasJump: false
+  hasJump: false,
+  isFixed: false
 }
 
 const mutations = {
   JUMP: state => {
     state.hasJump = true
+  },
+  ISFIXED({ commit }) {
+    state.isFixed = commit
   }
 }
 
 const actions = {
   jump({ commit }) {
     commit('JUMP')
+  },
+  isFixed({ commit }) {
+    commit('ISFIXED')
   }
 }
 

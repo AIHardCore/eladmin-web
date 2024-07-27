@@ -1,5 +1,5 @@
 <template>
-  <div class="special-container">
+  <div class=" container">
     <div>
       <van-image lazy-load :src="special.cover" width="100%" height="250px" fit="fill" />
     </div>
@@ -87,11 +87,6 @@ export default {
 </script>
 
 <style scoped>
-.special-container {
-  padding: 0px 15px;
-  min-height: 100vh; /* 设置最小高度为视口的100% */
-  overflow-y: auto; /* 如果内容超出屏幕，可以滚动查看 */
-}
 .bgr {
   background: rgba(0, 0, 0, 0);
 }
