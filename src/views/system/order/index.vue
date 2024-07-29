@@ -25,12 +25,7 @@
             :value="item.key"
           />
         </el-select>
-        <date-range-picker
-          v-model="query.createTime"
-          start-placeholder="createTimeStart"
-          end-placeholder="createTimeStart"
-          class="date-item"
-        />
+        <date-range-picker v-model="query.createTime" class="date-item" />
         <rrOperation :crud="crud" />
       </div>
       <!--如果想在工具栏加入更多按钮，可以使用插槽方式， slot = 'left' or 'right'-->
@@ -79,8 +74,17 @@
         <el-table-column type="selection" width="55" />
         <el-table-column prop="transactionId" label="微信订单号" />
         <el-table-column prop="outTradeNo" label="商户订单号" />
+        <el-table-column prop="nickName" label="用户昵称">
+          <template slot-scope="scope">
+            {{ scope.row.member.nickName }}
+          </template>
+        </el-table-column>
         <el-table-column prop="amount" label="价格" />
-        <el-table-column prop="status" label="状态" />
+        <el-table-column prop="status" label="状态">
+          <template slot-scope="scope">
+            {{ scope.row.status === 0 ? '已支付' : '未支付' }}
+          </template>
+        </el-table-column>
         <el-table-column prop="msg" label="消息或异常" />
         <el-table-column prop="createTime" label="创建日期" />
         <el-table-column prop="updateTime" label="更新时间" />
@@ -106,11 +110,12 @@ import rrOperation from '@crud/RR.operation'
 import crudOperation from '@crud/CRUD.operation'
 import udOperation from '@crud/UD.operation'
 import pagination from '@crud/Pagination'
+import DateRangePicker from '@/components/DateRangePicker'
 
 const defaultForm = { id: null, transactionId: null, outTradeNo: null, amount: null, status: null, msg: null, createBy: null, updateBy: null, createTime: null, updateTime: null }
 export default {
   name: 'Order',
-  components: { pagination, crudOperation, rrOperation, udOperation },
+  components: { pagination, crudOperation, rrOperation, udOperation, DateRangePicker },
   mixins: [presenter(), header(), form(defaultForm), crud()],
   cruds() {
     return CRUD({ title: '订单', url: 'api/order', idField: 'id', sort: 'outTradeNo,desc', crudMethod: { ...crudOrder }})
@@ -134,6 +139,9 @@ export default {
         { key: 'status', display_name: '状态' }
       ]
     }
+  },
+  computed() {
+    this.curd.query.status = 0
   },
   methods: {
     // 钩子：在获取表格数据之前执行，false 则代表不获取数据
