@@ -1,6 +1,5 @@
 <template>
   <div class="layout-container" style="overflow: hidden">
-    <!--    <div :style="'background-image:url('+ bgri +');'" class="main">-->
     <div class="main">
       <!--      <div v-show="this.$store.state.routeName !== 'My' && this.$store.state.routeName !== 'Auth'"><notice-bar /></div>-->
       <div v-show="this.$store.state.routeName !== 'My' && this.$store.state.routeName !== 'Article' && this.$store.state.routeName !== 'Auth'"><search-bar /></div>
@@ -13,9 +12,6 @@
        -->
       <van-tabbar v-model="active" route active-color="#6B4400" inactive-color="#cdcdcd" style="height: 80px">
         <!--        <van-tabbar-item badge="3" to="/My">-->
-        <van-tabbar-item v-show="false" to="/Auth">
-          <span>授权</span>
-        </van-tabbar-item>
         <van-tabbar-item v-for="(item,index) of bars" :key="index" :to="item.to" style="background-color: black;line-height:20px">
           <span style="">{{ item.title }}</span>
           <template #icon="props">
@@ -36,7 +32,6 @@
 
 <script>
 import SearchBar from '@/components/app/search'
-
 export default {
   name: 'LayoutIndex',
   components: { SearchBar },

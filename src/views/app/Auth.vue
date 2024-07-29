@@ -8,9 +8,11 @@
 import crudLogin from '@/api/app/login'
 import { setAppToken } from '@/utils/auth'
 import store from '@/store'
+import { Dialog } from 'vant'
 
 export default {
   name: 'AuthPage',
+  components: { [Dialog.name]: Dialog },
   data() {
     return {
       show: true

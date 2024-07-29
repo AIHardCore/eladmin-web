@@ -45,9 +45,15 @@
 
 <script>
 import crudArticle from '@/api/app/article'
+import { List, Card, Divider } from 'vant'
 
 export default {
   name: 'HomePage',
+  components: {
+    [List.name]: List,
+    [Card.name]: Card,
+    [Divider.name]: Divider
+  },
   data() {
     return {
       list: [],

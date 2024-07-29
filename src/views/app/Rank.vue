@@ -45,9 +45,23 @@
 
 <script>
 import curdRank from '@/api/app/rank'
+import {
+  List,
+  Tab,
+  Tabs,
+  Card,
+  Divider
+} from 'vant'
 
 export default {
   name: 'RankPage',
+  components: {
+    [List.name]: List,
+    [Card.name]: Card,
+    [Tab.name]: Tab,
+    [Tabs.name]: Tabs,
+    [Divider.name]: Divider
+  },
   props: {},
   data() {
     return {

@@ -120,10 +120,24 @@ import avatar from '@/assets/images/avatar.png'
 import kefu from '@/assets/images/app/kefu.png'
 import kefuQr from '@/assets/images/app/kefuQr.jpg'
 import crudProduct from '@/api/app/produce'
+import { List, Card, Collapse, CollapseItem, Row, Col, Button, Icon, Field, Form, Dialog, Toast } from 'vant'
 
 export default {
   name: 'MyPage',
-  components: {},
+  components: {
+    [List.name]: List,
+    [Card.name]: Card,
+    [Collapse.name]: Collapse,
+    [CollapseItem.name]: CollapseItem,
+    [Row.name]: Row,
+    [Col.name]: Col,
+    [Button.name]: Button,
+    [Icon.name]: Icon,
+    [Field.name]: Field,
+    [Form.name]: Form,
+    [Dialog.Component.name]: Dialog.Component,
+    [Toast.name]: Toast
+  },
   data() {
     return {
       kefu: kefu,

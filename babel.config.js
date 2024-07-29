@@ -1,5 +1,10 @@
 const plugins = [
-  '@vue/babel-plugin-transform-vue-jsx'
+  '@vue/babel-plugin-transform-vue-jsx',
+  ['import', {
+    libraryName: 'vant',
+    libraryDirectory: 'es',
+    style: true
+  }, 'vant']
 ]
 // 生产环境移除console
 /* if (process.env.NODE_ENV === 'production') {

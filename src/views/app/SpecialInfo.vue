@@ -41,9 +41,15 @@
 <script>
 import defaultImg from '@/assets/images/app/default_img.png'
 import crudSpecial from '@/api/app/special'
+import { List, Card, Divider } from 'vant'
 
 export default {
   name: 'SpecialInfoPage',
+  components: {
+    [List.name]: List,
+    [Card.name]: Card,
+    [Divider.name]: Divider
+  },
   props: {},
   data() {
     return {

@@ -54,9 +54,17 @@
 import crudArticle from '@/api/app/article'
 import crudBanner from '@/api/app/banner'
 import img from '@/assets/images/app/default_img.png'
+import { List, Card, Divider, Swipe, SwipeItem } from 'vant'
 
 export default {
   name: 'HomePage',
+  components: {
+    [List.name]: List,
+    [Card.name]: Card,
+    [Divider.name]: Divider,
+    [Swipe.name]: Swipe,
+    [SwipeItem.name]: SwipeItem
+  },
   data() {
     return {
       code: null,

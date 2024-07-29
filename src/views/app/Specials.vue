@@ -24,9 +24,13 @@
 
 <script>
 import crudSpecial from '@/api/app/special'
+import { Divider } from 'vant'
 
 export default {
   name: 'SpecialPage',
+  components: {
+    [Divider.name]: Divider
+  },
   props: {},
   data() {
     return {

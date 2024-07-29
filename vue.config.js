@@ -2,6 +2,7 @@
 const path = require('path')
 const defaultSettings = require('./src/settings.js')
 const CompressionPlugin = require('compression-webpack-plugin')
+const SmarterQiniuWebpackPlugin = require('smarter-qiniu-webpack-plugin')
 
 function resolve(dir) {
   return path.join(__dirname, dir)
@@ -13,13 +14,20 @@ if (isProd) {
   // 如果是生产环境 就排除打包 否则不排除
   externals = {
     // key(包名) / value(这个值 是 需要在CDN中获取js, 相当于 获取的js中 的该包的全局的对象的名字)
-    'vue': 'Vue' // 后面的名字不能随便起 应该是 js中的全局对象名
+    // 'vue': 'Vue', // 后面的名字不能随便起 应该是 js中的全局对象名
+    // 'vue-router': 'VueRouter',
+    // 'vant': 'Vant',
+    // 'axios': 'axios'
   }
   cdn = {
     css: [
+      process.env.VUE_APP_PUBLIC_PATH_PROD + 'index.css' // 提前引入elementUI样式
     ], // 放置css文件目录
     js: [
-      process.env.VUE_APP_PUBLIC_PATH_PROD + 'vue.min.js' // vuejs
+      // process.env.VUE_APP_PUBLIC_PATH_PROD + 'vue.min.js', // vuejs
+      // process.env.VUE_APP_PUBLIC_PATH_PROD + 'vue.router.min.js', // vue-router
+      // process.env.VUE_APP_PUBLIC_PATH_PROD + 'vant.min.js', // vant
+      // process.env.VUE_APP_PUBLIC_PATH_PROD + 'axios.min.js' // vant
     ] // 放置js文件目录
   }
 }
@@ -31,12 +39,12 @@ const port = 8013 // 端口配置
 module.exports = {
   // hash 模式下可使用
   // publicPath: process.env.NODE_ENV === 'development' ? '/' : './',
-  // hash 模式下可使用 生产环境下替换路径为cdn路径
-  publicPath: isProd ? process.env.VUE_APP_PUBLIC_PATH_PROD : '/',
+  // 生产环境下替换路径为cdn路径
+  publicPath: isProd ? process.env.VUE_APP_PUBLIC_PATH_PROD + require('./package.json').version + (process.env.ENV === 'test' ? '_test' : '') : '/',
   // publicPath: '/',
-  outputDir: 'dist',
-  assetsDir: require('./package.json').version + (process.env.ENV ? '_test' : ''),
-  lintOnSave: process.env.NODE_ENV === 'development',
+  outputDir: 'dist/' + require('./package.json').version + (process.env.ENV === 'test' ? '_test' : ''),
+  assetsDir: 'static',
+  lintOnSave: false,
   productionSourceMap: false,
   devServer: {
     port: port,
@@ -80,7 +88,8 @@ module.exports = {
         filename: '[path].gz[query]', // 压缩后的文件名
         algorithm: 'gzip', // 使用gzip压缩
         minRatio: 0.8 // 压缩率小于1才会压缩
-      })
+      }),
+      new SmarterQiniuWebpackPlugin()
     ],
     // 排除框架
     externals: externals
@@ -149,11 +158,6 @@ module.exports = {
                   test: /[\\/]node_modules[\\/]/,
                   priority: 10,
                   chunks: 'initial' // only package third parties that are initially dependent
-                },
-                elementUI: {
-                  name: 'chunk-elementUI', // split elementUI into a single package
-                  priority: 20, // the weight needs to be larger than libs and app or it will be packaged into libs or app
-                  test: /[\\/]node_modules[\\/]_?element-ui(.*)/ // in order to adapt to cnpm
                 },
                 commons: {
                   name: 'chunk-commons',

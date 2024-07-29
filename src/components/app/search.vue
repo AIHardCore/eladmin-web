@@ -20,9 +20,11 @@
 </template>
 
 <script>
+import { Search } from 'vant'
+
 export default {
   name: 'SearchBar',
-  components: {},
+  components: { [Search.name]: Search },
   props: {},
   data() {
     return {

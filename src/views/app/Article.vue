@@ -3,14 +3,16 @@
     <van-button :icon="topClassName" round class="block-sidebar" @click="scrollToElement" />
     <div ref="articleContent" class="article-content">
       <div id="cover" style="padding-top: 10px;">
-        <van-image :src="article.cover" fit="contain" />
+        <van-image :class="{ 'default_img': isLoading }" :src="article.cover" fit="contain" />
       </div>
-      <div>
-        <div>
-          <div id="article" ref="article" v-html="article.body ? article.body : article.preview" />
-        </div>
+      <div id="article" ref="article">
+        <van-skeleton title :row="30" :loading="isLoading">
+          <div>
+            <div v-html="article.body ? article.body : article.preview" />
+          </div>
+        </van-skeleton>
       </div>
-      <div v-show="!member.type" style="height: 150px">
+      <div v-if="!member.type" style="height: 150px">
         <div style="text-align: left;color: red;font-size: 15px;padding-bottom: 10px;">
           <span>进入修真界，了解更多深度、稀缺、硬核内容，每周更新</span>
         </div>
@@ -108,9 +110,22 @@ import crudComment from '@/api/app/comment'
 import crudMember from '@/api/app/my'
 import Watermark from '@/utils/watermark'
 import defaultImg from '@/assets/images/app/default_img.png'
+import { List, Card, Divider, Row, Col, Button, Icon, Toast, Skeleton, Field } from 'vant'
 
 export default {
   name: 'ArticleInfoPage',
+  components: {
+    [List.name]: List,
+    [Card.name]: Card,
+    [Divider.name]: Divider,
+    [Row.name]: Row,
+    [Col.name]: Col,
+    [Button.name]: Button,
+    [Icon.name]: Icon,
+    [Toast.name]: Toast,
+    [Skeleton.name]: Skeleton,
+    [Field.name]: Field
+  },
   data() {
     return {
       processName: (username) => {
@@ -125,6 +140,7 @@ export default {
           return p1 + '***' + p3
         })
       },
+      isLoading: true,
       showCommentText: false,
       articleHeight: 0,
       articleHeightNow: 0,
@@ -132,7 +148,7 @@ export default {
       member: {
         type: true
       },
-      topClassName: 'arrow-down',
+      topClassName: 'comment-o',
       comment: {
         message: '',
         article: {
@@ -204,13 +220,14 @@ export default {
       }
     )
     // 添加滚动事件监听
-    window.addEventListener('scroll', this.debouncedHandleScroll)
+    // window.addEventListener('scroll', this.debouncedHandleScroll)
   },
   methods: {
     loadArticle() {
       crudArticle.read(this.id).then(res => {
         this.article = res
         document.title = this.article.title
+        this.isLoading = false
       }).catch(() => { })
     },
     onLoad() {
@@ -307,12 +324,10 @@ export default {
       const scrollHeight = document.documentElement.scrollHeight // 内容高度
       // 判断是否滚动到底部
       const isBottom = scrollHeight - (scrollTop + clientHeight) < 1 // 这里的1是一个阈值，可以根据需要调整
-      console.log(isBottom)
-      console.log(this.$refs.articleContent.offsetHeight + this.$refs.articleContent.getBoundingClientRect().top < 100)
       if (this.$refs.articleContent.offsetHeight + this.$refs.articleContent.getBoundingClientRect().top < 100 || isBottom) {
-        this.topClassName = 'arrow-up'
+        this.topClassName = 'comment-o'
       } else {
-        this.topClassName = 'arrow-down'
+        this.topClassName = 'comment-o'
       }
     },
     // 防抖处理函数
@@ -337,6 +352,10 @@ export default {
   -moz-user-select: none; /* Firefox */
   -ms-user-select: none; /* IE10+/Edge */
   user-select: none; /* 标准语法 */
+}
+.default_img {
+  width:100%;
+  height:300px;
 }
 .article-content {
   padding: 0px 15px;
