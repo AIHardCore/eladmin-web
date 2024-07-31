@@ -5,7 +5,7 @@
       <el-link type="primary" href="https://www.wangeditor.com/v5/getting-started.html" target="_blank">wangEditor</el-link>
     </p>
     <el-row :gutter="10">
-      <wang-editor v-model="editorContent" style="height: 500px; overflow-y: hidden;" />
+      <wang-editor v-model="editorContent" style="height: 500px; overflow-y: hidden;z-index: 9999" />
     </el-row>
   </div>
 </template>

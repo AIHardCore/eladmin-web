@@ -72,7 +72,7 @@
             <el-input v-model="form.title" style="width: 370px;" />
           </el-form-item>
           <el-form-item label="封面" prop="cover">
-            <el-input v-model="form.cover" style="width: 370px;" />
+            <el-input v-model="form.cover" style="width: 370px;" @paste.native="pasteCover($event)" />
             <el-image
               :src="form.cover"
               :preview-src-list="[form.cover]"
@@ -88,12 +88,12 @@
           </el-form-item>
           <el-form-item label="预览" prop="preview">
             <el-row :gutter="10">
-              <wang-editor :key="previewKey" v-model="form.preview" style="height: 500px; overflow-y: hidden;" />
+              <wang-editor :key="previewKey" v-model="form.preview" style="height: 500px; overflow-y: hidden;z-index: 9999;" />
             </el-row>
           </el-form-item>
           <el-form-item label="内容" prop="content">
             <el-row :gutter="10">
-              <wang-editor :key="bodyKey" v-model="form.body" style="height: 500px; overflow-y: hidden;" />
+              <wang-editor :key="bodyKey" v-model="form.body" style="height: 500px; overflow-y: hidden;z-index: 9999;" />
             </el-row>
           </el-form-item>
           <el-form-item label="状态" prop="enabled">
@@ -169,6 +169,7 @@ import udOperation from '@crud/UD.operation'
 import pagination from '@crud/Pagination'
 import WangEditor from '@/components/WangEditor'
 import { mapGetters } from 'vuex'
+import { upload } from '@/utils/upload'
 
 let articleSpecials = []
 const defaultForm = { id: null, specials: [], title: null, cover: null, preview: '', body: '', enabled: 'false', sort: null, reading: null, createTime: null, updateTime: null }
@@ -219,7 +220,7 @@ export default {
   computed: {
     ...mapGetters([
       'baseApi',
-      'fileUploadApi'
+      'qiNiuUploadApi'
     ])
   },
   methods: {
@@ -260,6 +261,26 @@ export default {
     [CRUD.HOOK.afterValidateCU](crud) {
       crud.form.specials = articleSpecials
       return true
+    },
+    async pasteCover(event) {
+      const { items } = event.clipboardData // 获取粘贴板文件对象
+      if (items.length) {
+        for (const item of items) {
+          if (item.type.indexOf('image') !== -1) {
+            const file = item.getAsFile() // 获取图片文件
+            if (file) {
+              // 接口返回的是图片线上地址
+              upload(this.qiNiuUploadApi, file).then(res => {
+                const data = res.data
+                data.data.forEach(val => {
+                  // 最后插入图片
+                  this.crud.form.cover = val + '-2_500_500_q_75'
+                })
+              })
+            }
+          }
+        }
+      }
     },
     getSpecials() {
       getAll().then(res => {

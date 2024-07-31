@@ -36,7 +36,7 @@
             <el-input v-model="form.desc" style="width: 370px;" />
           </el-form-item>
           <el-form-item label="封面" prop="cover">
-            <el-input v-model="form.cover" style="width: 250px;" />
+            <el-input v-model="form.cover" style="width: 250px;" @paste.native="pasteCover($event)" />
             <el-image
               :src="form.cover"
               :preview-src-list="[form.cover]"
@@ -117,6 +117,7 @@ import udOperation from '@crud/UD.operation'
 import pagination from '@crud/Pagination'
 import { mapGetters } from 'vuex'
 import crudUser from '@/api/system/user'
+import { upload } from '@/utils/upload'
 
 const defaultForm = { id: null, name: null, cover: null, sort: null, enabled: 'false', createBy: null, updateBy: null, createTime: null, updateTime: null }
 export default {
@@ -155,7 +156,7 @@ export default {
   computed: {
     ...mapGetters([
       'baseApi',
-      'fileUploadApi'
+      'qiNiuUploadApi'
     ])
   },
   methods: {
@@ -166,6 +167,26 @@ export default {
     // 新增与编辑前做的操作
     [CRUD.HOOK.afterToCU](crud, form) {
       form.enabled = form.enabled.toString()
+    },
+    async pasteCover(event) {
+      const { items } = event.clipboardData // 获取粘贴板文件对象
+      if (items.length) {
+        for (const item of items) {
+          if (item.type.indexOf('image') !== -1) {
+            const file = item.getAsFile() // 获取图片文件
+            if (file) {
+              // 接口返回的是图片线上地址
+              upload(this.qiNiuUploadApi, file).then(res => {
+                const data = res.data
+                data.data.forEach(val => {
+                  // 最后插入图片
+                  this.crud.form.cover = val + '-2_500_500_q_75'
+                })
+              })
+            }
+          }
+        }
+      }
     },
     // 改变状态
     changeEnabled(data, val) {

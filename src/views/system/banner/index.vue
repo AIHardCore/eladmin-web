@@ -36,7 +36,7 @@
       <el-dialog :close-on-click-modal="false" :before-close="crud.cancelCU" :visible.sync="crud.status.cu > 0" :title="crud.status.title" width="500px">
         <el-form ref="form" :model="form" :rules="rules" size="small" label-width="80px">
           <el-form-item label="图片" prop="img">
-            <el-input v-model="form.img" style="width: 250px;" />
+            <el-input v-model="form.img" style="width: 250px;" @paste.native="pasteCover($event)" />
             <el-image
               :src="form.img"
               :preview-src-list="[form.img]"
@@ -146,6 +146,7 @@ import DateRangePicker from '@/components/DateRangePicker'
 import { mapGetters } from 'vuex'
 import { getAll } from '@/api/special'
 import crudArticle from '@/api/article'
+import { upload } from '@/utils/upload'
 
 const defaultForm = { id: null, img: null, special: null, sort: null, enabled: 'false', beginTime: null, endTime: null, createTime: null, updateTime: null, describe: null, betweenTime: null }
 export default {
@@ -192,7 +193,7 @@ export default {
   computed: {
     ...mapGetters([
       'baseApi',
-      'fileUploadApi'
+      'qiNiuUploadApi'
     ])
   },
   methods: {
@@ -204,6 +205,26 @@ export default {
     [CRUD.HOOK.afterToCU](crud, form) {
       this.getSpecials()
       form.enabled = form.enabled.toString()
+    },
+    async pasteCover(event) {
+      const { items } = event.clipboardData // 获取粘贴板文件对象
+      if (items.length) {
+        for (const item of items) {
+          if (item.type.indexOf('image') !== -1) {
+            const file = item.getAsFile() // 获取图片文件
+            if (file) {
+              // 接口返回的是图片线上地址
+              upload(this.qiNiuUploadApi, file).then(res => {
+                const data = res.data
+                data.data.forEach(val => {
+                  // 最后插入图片
+                  this.crud.form.img = val + '-2_500_500_q_75'
+                })
+              })
+            }
+          }
+        }
+      }
     },
     getSpecials() {
       getAll().then(res => {

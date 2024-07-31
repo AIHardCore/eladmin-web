@@ -46,21 +46,16 @@ export default {
           allowedFileTypes: ['image/*'],
           // 自定义上传
           async customUpload(file, insertFn) { // JS 语法
-            upload(_this.imagesUploadApi, file).then(res => {
+            upload(_this.qiNiuUploadApi, file).then(res => {
               const data = res.data
-              const url = _this.baseApi + '/file/' + data.type + '/' + data.realName
-              // 最后插入图片
-              insertFn(url, '', '')
+              data.data.forEach(val => {
+                // 最后插入图片
+                insertFn(val, '', '')
+              })
             })
           }
         }
       }},
-      computed: {
-        ...mapGetters([
-          'imagesUploadApi',
-          'baseApi'
-        ])
-      },
       editMode: 'defalut',
       editor: null,
       editValue: ''
@@ -71,8 +66,18 @@ export default {
       this.$emit('input', newVal)
     }
   },
+  computed: {
+    ...mapGetters([
+      'qiNiuUploadApi',
+      'baseApi'
+    ])
+  },
   mounted() {
-
+  },
+  beforeDestroy() {
+    const editor = this.editor
+    if (editor == null) return
+    editor.destroy() // 组件销毁时，及时销毁编辑器
   },
   methods: {
     clearContent() {
@@ -80,11 +85,6 @@ export default {
         this.editor.clear() // 清空编辑器内容
         this.editValue = '' // 清空本地数据
         this.$emit('input', '') // 触发input事件，通知父组件内容已清空
-      }
-    },
-    setText(text) {
-      if (this.editor) {
-        this.editValue = text // 设置数据
       }
     },
     onCreated(editor) {
@@ -100,6 +100,5 @@ export default {
   text-align:left;
 }
 ::v-deep .w-e-text-container {
-  height: 420px !important;
 }
 </style>
