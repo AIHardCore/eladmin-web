@@ -38,7 +38,7 @@
             <el-input v-model="form.nickName" :disabled="form.createBy === 'System'" />
           </el-form-item>
           <el-form-item label="头像" prop="headImgUrl">
-            <el-input v-model="form.headImgUrl" :disabled="form.createBy === 'System'" />
+            <el-input v-model="form.headImgUrl" :disabled="form.createBy === 'System'" @paste.native="pasteCover($event)" />
           </el-form-item>
           <el-form-item label="VIP到期时间" prop="vipExpiration">
             <el-date-picker v-model="form.vipExpiration" type="datetime" style="width: 200px;" />
@@ -113,6 +113,8 @@ import crudOperation from '@crud/CRUD.operation'
 import udOperation from '@crud/UD.operation'
 import pagination from '@crud/Pagination'
 import DateRangePicker from '@/components/DateRangePicker'
+import { upload } from '@/utils/upload'
+import { mapGetters } from 'vuex'
 
 const defaultForm = { openId: null, nickName: null, headImgUrl: null, phone: null, type: null, vipExpiration: null, enabled: null, createTime: null, updateTime: null, updateBy: null, createBy: null }
 export default {
@@ -128,6 +130,12 @@ export default {
         del: false,
         reset: false
       }})
+  },
+  computed: {
+    ...mapGetters([
+      'baseApi',
+      'qiNiuUploadApi'
+    ])
   },
   data() {
     return {
@@ -161,6 +169,26 @@ export default {
     // 新增与编辑前做的操作
     [CRUD.HOOK.afterToCU](crud, form) {
       form.enabled = form.enabled.toString()
+    },
+    async pasteCover(event) {
+      const { items } = event.clipboardData // 获取粘贴板文件对象
+      if (items.length) {
+        for (const item of items) {
+          if (item.type.indexOf('image') !== -1) {
+            const file = item.getAsFile() // 获取图片文件
+            if (file) {
+              // 接口返回的是图片线上地址
+              upload(this.qiNiuUploadApi, file).then(res => {
+                const data = res.data
+                data.data.forEach(val => {
+                  // 最后插入图片
+                  this.crud.form.headImgUrl = val + '-2_500_500_q_75'
+                })
+              })
+            }
+          }
+        }
+      }
     },
     difference(row) {
       const dateTime = new Date()
