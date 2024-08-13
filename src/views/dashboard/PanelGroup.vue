@@ -14,20 +14,20 @@
       </div>
     </el-col>
     <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
-      <div class="card-panel" @click="handleSetLineChartData('messages')">
-        <div class="card-panel-icon-wrapper icon-message">
-          <svg-icon icon-class="message" class-name="card-panel-icon" />
+      <div class="card-panel" @click="handleSetLineChartData('amount')">
+        <div class="card-panel-icon-wrapper icon-money">
+          <svg-icon icon-class="money" class-name="card-panel-icon" />
         </div>
         <div class="card-panel-description">
           <div class="card-panel-text">
-            今日留言
+            当月订单总额
           </div>
-          <count-to :start-val="0" :end-val="81212" :duration="5" class="card-panel-num" />
+          <count-to :start-val="0" :end-val="orderData.sumMonth" :duration="361" class="card-panel-num" />
         </div>
       </div>
     </el-col>
     <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
-      <div class="card-panel" @click="handleSetLineChartData('amount')">
+      <div class="card-panel" @click="handleSetLineChartData('amountOfMonth')">
         <div class="card-panel-icon-wrapper icon-money">
           <svg-icon icon-class="money" class-name="card-panel-icon" />
         </div>
@@ -40,7 +40,7 @@
       </div>
     </el-col>
     <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
-      <div class="card-panel" @click="handleSetLineChartData('shoppings')">
+      <div class="card-panel" @click="handleSetLineChartData('amountOfHour')">
         <div class="card-panel-icon-wrapper icon-shopping">
           <svg-icon icon-class="shopping" class-name="card-panel-icon" />
         </div>
@@ -65,8 +65,14 @@ export default {
   },
   data() {
     return {
-      loginData: {},
-      orderData: {}
+      loginData: {
+        today: 0
+      },
+      orderData: {
+        sumMonth: 0,
+        sum: 0,
+        sumToday: 0
+      }
     }
   },
   mounted() {

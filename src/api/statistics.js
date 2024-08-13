@@ -28,4 +28,18 @@ export function orderLogs(status) {
   })
 }
 
-export default { loginCount, loginLogs, orderSum, orderLogs }
+export function orderLogsOfMonth(status) {
+  return request({
+    url: 'api/statistics/order/logsOfMonth/' + status,
+    method: 'get'
+  })
+}
+
+export function orderLogsOfHour(status) {
+  return request({
+    url: 'api/statistics/order/logsOfHour/' + status,
+    method: 'get'
+  })
+}
+
+export default { loginCount, loginLogs, orderSum, orderLogs, orderLogsOfMonth, orderLogsOfHour }

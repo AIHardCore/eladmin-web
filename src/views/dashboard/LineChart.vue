@@ -64,7 +64,7 @@ export default {
     setOptions(val) {
       this.chart.setOption({
         xAxis: {
-          data: val.days,
+          data: val.times,
           boundaryGap: false,
           axisTick: {
             show: false
