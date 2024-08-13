@@ -47,7 +47,7 @@
       <!--表单组件-->
       <el-dialog :close-on-click-modal="false" :before-close="crud.cancelCU" :visible.sync="crud.status.cu > 0" :title="crud.status.title" width="500px">
         <el-form ref="form" :model="form" :rules="rules" size="small" label-width="80px">
-          <el-form-item v-show="!form.real" label="文章" prop="articleId">
+          <el-form-item v-show="!form.real" label="文章" prop="articleId" style="width: 370px;">
             <template>
               <el-select
                 v-model="form.articleId"
@@ -58,6 +58,7 @@
                 placeholder="请输入文章标题进行检索"
                 :remote-method="remoteMethod"
                 :loading="loading"
+                style="width: 370px;"
               >
                 <el-option
                   v-for="item in options"
@@ -74,7 +75,7 @@
           <el-form-item label="回复" prop="reply">
             <el-input v-model="form.reply" type="textarea" :rows="5" style="width: 370px;" />
           </el-form-item>
-          <el-form-item v-show="!form.real" label="用户" prop="openId">
+          <el-form-item v-if="!form.real" label="用户" prop="openId">
             <el-select
               v-model="form.openId"
               clearable
@@ -103,6 +104,9 @@
                 <i class="el-icon-document" />
               </div>
             </el-image>
+          </el-form-item>
+          <el-form-item v-show="false" v-if="form.real" label="openId" prop="openId">
+            <el-input v-model="form.openId" type="hidden" style="width: 370px;" />
           </el-form-item>
           <el-form-item label="点赞数" prop="likes">
             <el-input-number v-model="form.likes" controls-position="right" :min="0" />
@@ -169,7 +173,7 @@ import pagination from '@crud/Pagination'
 import crudMember from '@/api/member'
 import crudArticle from '@/api/article'
 
-const defaultForm = { id: null, article: null, message: null, reply: null, member: {}, openId: null, likes: null, real: false, enabled: false, createBy: null, updateBy: null, createTime: null, updateTime: null, queryReply: null }
+const defaultForm = { id: null, article: null, articleId: null, message: null, reply: null, member: {}, openId: null, likes: null, real: false, enabled: false, createBy: null, updateBy: null, createTime: null, updateTime: null, queryReply: null }
 export default {
   name: 'Comment',
   components: { pagination, crudOperation, rrOperation, udOperation },
@@ -198,14 +202,8 @@ export default {
         reply: [
           { max: 500, message: '内容长度不能超过500', trigger: 'blur' }
         ],
-        openId: [
-          { required: true, message: '用户不能为空', trigger: 'change' }
-        ],
         likes: [
           { required: true, message: '点赞数不能为空', trigger: 'blur' }
-        ],
-        articleId: [
-          { required: true, message: '文章不能为空', trigger: 'change' }
         ]
       },
       replyOptions: [
@@ -228,12 +226,19 @@ export default {
     // 新增与编辑前做的操作
     [CRUD.HOOK.afterToCU](crud, form) {
       this.headImgUrl = null
+      if (form.id && !form.real) {
+        this.headImgUrl = form.member.headImgUrl
+        form.articleId = form.article.id
+        this.options = []
+        this.options.push(form.article)
+      }
       this.getSystemMember()
+      form.openId = form.member.openId
       form.enabled = form.enabled.toString()
     },
     // 提交前做的操作
     [CRUD.HOOK.afterValidateCU](crud) {
-      if (!crud.form.real) {
+      if (!form.id && !crud.form.real) {
         crud.form.article = { id: crud.form.articleId }
       }
       crud.form.member = {
