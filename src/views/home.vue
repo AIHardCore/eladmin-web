@@ -51,6 +51,12 @@ const lineChartData = {
     successData: [],
     keys: ['未支付', '已支付']
   },
+  amountOfPre: {
+    times: [],
+    failData: [],
+    successData: [],
+    keys: ['未支付', '已支付']
+  },
   amount: {
     times: [],
     failData: [],
@@ -105,8 +111,8 @@ export default {
           lineChartData.newLogin.failData.push(item['num'])
         })
       }).catch(() => {})
-      // 每日
-      crudStatistics.orderLogs(0).then(res => {
+      // 每日(上月)
+      crudStatistics.orderLogsOfPre(0).then(res => {
         lineChartData.amount.successData = []
         lineChartData.amount.times = []
         res.forEach(item => {
@@ -114,10 +120,25 @@ export default {
           lineChartData.amount.times.push(item['times'])
         })
       }).catch(() => {})
-      crudStatistics.orderLogs(2).then(res => {
+      crudStatistics.orderLogsOfPre(2).then(res => {
         lineChartData.amount.failData = []
         res.forEach(item => {
           lineChartData.amount.failData.push(item['num'])
+        })
+      }).catch(() => {})
+      // 每日(本月)
+      crudStatistics.orderLogs(0).then(res => {
+        lineChartData.amountOfPre.successData = []
+        lineChartData.amountOfPre.times = []
+        res.forEach(item => {
+          lineChartData.amountOfPre.successData.push(item['num'])
+          lineChartData.amountOfPre.times.push(item['times'])
+        })
+      }).catch(() => {})
+      crudStatistics.orderLogs(2).then(res => {
+        lineChartData.amountOfPre.failData = []
+        res.forEach(item => {
+          lineChartData.amountOfPre.failData.push(item['num'])
         })
       }).catch(() => {})
       // 每月

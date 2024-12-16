@@ -20,6 +20,19 @@
         </div>
         <div class="card-panel-description">
           <div class="card-panel-text">
+            上月订单总额
+          </div>
+          <count-to :start-val="0" :end-val="orderData.sumPreMonth" :duration="361" class="card-panel-num" />
+        </div>
+      </div>
+    </el-col>
+    <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
+      <div class="card-panel" @click="handleSetLineChartData('amountOfPre')">
+        <div class="card-panel-icon-wrapper icon-money">
+          <svg-icon icon-class="money" class-name="card-panel-icon" />
+        </div>
+        <div class="card-panel-description">
+          <div class="card-panel-text">
             当月订单总额
           </div>
           <count-to :start-val="0" :end-val="orderData.sumMonth" :duration="361" class="card-panel-num" />
@@ -69,6 +82,7 @@ export default {
         today: 0
       },
       orderData: {
+        sumPreMonth: 0,
         sumMonth: 0,
         sum: 0,
         sumToday: 0
@@ -100,6 +114,7 @@ export default {
 
   .card-panel-col {
     margin-bottom: 32px;
+    width: 20%;
   }
 
   .card-panel {
