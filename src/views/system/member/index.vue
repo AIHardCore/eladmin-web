@@ -39,6 +39,17 @@
           </el-form-item>
           <el-form-item label="头像" prop="headImgUrl">
             <el-input v-model="form.headImgUrl" :disabled="form.createBy === 'System'" @paste.native="pasteCover($event)" />
+            <el-image
+              :src="form.headImgUrl"
+              :preview-src-list="[form.headImgUrl]"
+              fit="contain"
+              lazy
+              class="el-avatar"
+            >
+              <div slot="error">
+                <i class="el-icon-document" />
+              </div>
+            </el-image>
           </el-form-item>
           <el-form-item label="VIP到期时间" prop="vipExpiration">
             <el-date-picker v-model="form.vipExpiration" type="datetime" style="width: 200px;" />
@@ -139,6 +150,7 @@ export default {
   },
   data() {
     return {
+      headImgUrl: null,
       permission: {
         add: ['admin', 'member:add'],
         edit: ['admin', 'member:edit'],
