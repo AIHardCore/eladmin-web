@@ -103,7 +103,6 @@ export default {
           lineChartData.newLogin.successData.push(item['num'])
           lineChartData.newLogin.times.push(item['times'])
         })
-        console.log(lineChartData.newLogin.days)
       }).catch(() => {})
       crudStatistics.loginLogs(false).then(res => {
         lineChartData.newLogin.failData = []
