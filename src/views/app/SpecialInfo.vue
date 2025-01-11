@@ -12,22 +12,22 @@
         @load="onLoad"
       >
         <van-card
-          v-for="item in special.articles"
-          :key="item.id"
+          v-for="item in articleSpecials"
+          :key="item.article.id"
           class="bgr"
-          :thumb="item.cover"
+          :thumb="item.article.cover"
           lazy-load
-          @click="read(item.id)"
+          @click="read(item.article.id)"
         >
           <template #desc>
             <div style="text-align: left;font-size: 15px">
               <br>
-              <span class="van-multi-ellipsis--l3">{{ item.title }}</span>
+              <span class="van-multi-ellipsis--l3">{{ item.article.title }}</span>
             </div>
           </template>
           <template #footer>
             <div>
-              <span style="color: chocolate;font-size: 10px">{{ item.reading }}人</span>
+              <span style="color: chocolate;font-size: 10px">{{ item.article.reading }}人</span>
               <span style="font-size: 10px;">已经火速观看</span>
             </div>
             <van-divider dashed :style="{ color: 'black', borderColor: 'black', padding: '0 16px' }" />
@@ -41,6 +41,7 @@
 <script>
 import defaultImg from '@/assets/images/app/default_img.png'
 import crudSpecial from '@/api/app/special'
+import crudArticleSpecials from '@/api/app/articlesSpecials'
 import { List, Card, Divider } from 'vant'
 
 export default {
@@ -57,9 +58,9 @@ export default {
       loading: false,
       finished: false,
       special: {
-        cover: defaultImg,
-        articles: []
-      }
+        cover: defaultImg
+      },
+      articleSpecials: []
     }
   },
   computed: {},
@@ -71,16 +72,27 @@ export default {
   methods: {
     onLoad() {
       this.special = this.$store.state.special
-      if (!this.special || !this.special.articles) {
-        this.loadArticle()
+      if (!this.special) {
+        this.loadSpecial()
+      }
+      if (this.id) {
+        this.loadArticleSpecials()
       }
       // 加载状态结束
       this.loading = false
       this.finished = true
     },
-    loadArticle() {
+    loadSpecial() {
       crudSpecial.detail(this.id).then(res => {
         this.special = res
+      }).catch(() => {})
+    },
+    loadArticleSpecials() {
+      const params = {
+        specialId: this.id
+      }
+      crudArticleSpecials.all(params).then(res => {
+        this.articleSpecials = res
       }).catch(() => {})
     },
     read(data) {
