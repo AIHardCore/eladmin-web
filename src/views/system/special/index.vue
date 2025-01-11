@@ -65,7 +65,15 @@
       <!--表格渲染-->
       <el-table ref="table" v-loading="crud.loading" :data="crud.data" size="small" style="width: 100%;" @selection-change="crud.selectionChangeHandler">
         <el-table-column type="selection" width="55" />
-        <el-table-column prop="name" label="名称" />
+        <el-table-column prop="name" label="名称">
+          <template slot-scope="{row}">
+            <app-link :to="getPath(row.id)">
+              <span class="name">
+                {{ row.name }}
+              </span>
+            </app-link>
+          </template>
+        </el-table-column>
         <el-table-column prop="desc" label="描述" />
         <el-table-column prop="cover" label="封面">
           <template slot-scope="{row}">
@@ -109,6 +117,7 @@
 </template>
 
 <script>
+import path from 'path'
 import crudSpecial from '@/api/special'
 import CRUD, { presenter, header, form, crud } from '@crud/crud'
 import rrOperation from '@crud/RR.operation'
@@ -118,15 +127,16 @@ import pagination from '@crud/Pagination'
 import { mapGetters } from 'vuex'
 import crudUser from '@/api/system/user'
 import { upload } from '@/utils/upload'
+import AppLink from '@/layout/components/Sidebar/Link'
 
 const defaultForm = { id: null, name: null, cover: null, sort: null, enabled: 'false', createBy: null, updateBy: null, createTime: null, updateTime: null }
 export default {
   name: 'Special',
-  components: { pagination, crudOperation, rrOperation, udOperation },
+  components: { pagination, crudOperation, rrOperation, udOperation, AppLink },
   mixins: [presenter(), header(), form(defaultForm), crud()],
   dicts: ['user_status'],
   cruds() {
-    return CRUD({ title: '专栏', url: 'api/special', idField: 'id', sort: ['sort,asc', 'id,desc'], crudMethod: { ...crudSpecial }})
+    return CRUD({ title: '内丹学', url: 'api/special', idField: 'id', sort: ['sort,asc', 'id,desc'], crudMethod: { ...crudSpecial }})
   },
   data() {
     return {
@@ -150,7 +160,8 @@ export default {
       queryTypeOptions: [
         { key: 'name', display_name: '名称' },
         { key: 'enabled', display_name: '状态' }
-      ]
+      ],
+      id: 0
     }
   },
   computed: {
@@ -213,11 +224,17 @@ export default {
           this.crud.form.cover = result.data.url
         }
       )
+    },
+    getPath(id) {
+      return path.resolve('/app/', 'articlesSpecials') + '?id=' + id
     }
   }
 }
 </script>
 
 <style scoped>
-
+.name{
+  color: rgb(64, 158, 255);
+  text-decoration: underline;
+}
 </style>

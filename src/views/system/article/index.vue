@@ -24,23 +24,6 @@
             :value="item.key"
           />
         </el-select>
-        <el-select
-          v-model="query.specials"
-          clearable
-          size="small"
-          placeholder="内丹学"
-          class="filter-item"
-          multiple
-          style="width: 300px"
-          @change="crud.toQuery"
-        >
-          <el-option
-            v-for="item in specials"
-            :key="item.name"
-            :label="item.name"
-            :value="item.id"
-          />
-        </el-select>
         <rrOperation :crud="crud" />
       </div>
       <!--如果想在工具栏加入更多按钮，可以使用插槽方式， slot = 'left' or 'right'-->
@@ -48,26 +31,6 @@
       <!--表单组件-->
       <el-dialog :close-on-click-modal="false" :before-close="crud.cancelCU" :visible.sync="crud.status.cu > 0" :title="crud.status.title">
         <el-form ref="form" :model="form" :rules="rules" size="small" label-width="80px">
-          <el-form-item style="margin-bottom: 0;" label="内丹学" prop="section">
-            <el-select
-              v-model="specialDatas"
-              clearable
-              size="small"
-              multiple
-              placeholder="内丹学"
-              class="filter-item"
-              style="width: 370px"
-              @remove-tag="deleteTag"
-              @change="handleSectionChange"
-            >
-              <el-option
-                v-for="item in specials"
-                :key="item.name"
-                :label="item.name"
-                :value="item.id"
-              />
-            </el-select>
-          </el-form-item>
           <el-form-item label="标题" prop="title">
             <el-input v-model="form.title" style="width: 370px;" />
           </el-form-item>
@@ -161,7 +124,6 @@
 
 <script>
 import crudArticle from '@/api/article'
-import { getAll } from '@/api/special'
 import CRUD, { presenter, header, form, crud } from '@crud/crud'
 import rrOperation from '@crud/RR.operation'
 import crudOperation from '@crud/CRUD.operation'
@@ -171,7 +133,6 @@ import WangEditor from '@/components/WangEditor'
 import { mapGetters } from 'vuex'
 import { upload } from '@/utils/upload'
 
-let articleSpecials = []
 const defaultForm = { id: null, specials: [], title: null, cover: null, preview: '', body: '', enabled: 'false', sort: null, reading: null, createTime: null, updateTime: null }
 export default {
   name: 'Article',
@@ -183,7 +144,7 @@ export default {
   },
   data() {
     return {
-      specials: [], bodyKey: 2, previewKey: 1, specialDatas: [],
+      bodyKey: 2, previewKey: 1,
       permission: {
         add: ['admin', 'article:add'],
         edit: ['admin', 'article:edit'],
@@ -226,7 +187,6 @@ export default {
   methods: {
     // 钩子：在获取表格数据之前执行，false 则代表不获取数据
     [CRUD.HOOK.beforeRefresh]() {
-      this.getSpecials()
       return true
     },
     // 新增与编辑前做的操作
@@ -245,22 +205,6 @@ export default {
       this.crud.form.preview = ''
       this.bodyKey++
       this.previewKey--
-    },
-    // 初始化编辑时候的角色与岗位
-    [CRUD.HOOK.beforeToEdit](crud, form) {
-      articleSpecials = []
-      this.specialDatas = []
-      const _this = this
-      form.specials.forEach(function(special, index) {
-        _this.specialDatas.push(special.id)
-        const spe = { id: special.id }
-        articleSpecials.push(spe)
-      })
-    },
-    // 提交前做的操作
-    [CRUD.HOOK.afterValidateCU](crud) {
-      crud.form.specials = articleSpecials
-      return true
     },
     async pasteCover(event) {
       const { items } = event.clipboardData // 获取粘贴板文件对象
@@ -282,11 +226,6 @@ export default {
         }
       }
     },
-    getSpecials() {
-      getAll().then(res => {
-        this.specials = res
-      }).catch(() => { })
-    },
     getArticleBody(form) {
       crudArticle.detail(form.id).then(res => {
         this.crud.form.body = res.body
@@ -307,20 +246,6 @@ export default {
         })
       }).catch(() => {
         data.enabled = !data.enabled
-      })
-    },
-    handleSectionChange(value) {
-      articleSpecials = []
-      value.forEach(function(data, index) {
-        const special = { id: data }
-        articleSpecials.push(special)
-      })
-    },
-    deleteTag(value) {
-      articleSpecials.forEach(function(data, index) {
-        if (data.id === value) {
-          articleSpecials.splice(index, value)
-        }
       })
     },
     showDrawer() {

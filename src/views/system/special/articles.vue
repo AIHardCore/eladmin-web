@@ -4,38 +4,36 @@
     <div class="head-container">
       <div v-if="crud.props.searchToggle">
         <!-- 搜索 -->
+        <label class="el-form-item-label">标题</label>
+        <el-input v-model="query.title" clearable placeholder="标题" style="width: 185px;" class="filter-item" @keyup.enter.native="crud.toQuery" />
+        <label class="el-form-item-label">内丹学</label>
         <el-select
-          v-model="query.type"
-          clearable
+          v-model="query.specialId"
           size="small"
-          placeholder="古科学"
+          placeholder="内丹学-文章"
           class="filter-item"
-          style="width: 100px"
+          style="width: 185px"
           @change="crud.toQuery"
         >
           <el-option
-            v-for="item in dict.rank_type"
-            :key="item.value"
-            :label="item.label"
-            :value="item.value"
+            v-for="item in specials"
+            :key="item.name"
+            :label="item.name"
+            :value="item.id"
           />
         </el-select>
-        <label class="el-form-item-label">文章</label>
-        <el-input v-model="query.article" clearable placeholder="文章" style="width: 185px;" class="filter-item" @keyup.enter.native="crud.toQuery" />
         <rrOperation :crud="crud" />
       </div>
       <!--如果想在工具栏加入更多按钮，可以使用插槽方式， slot = 'left' or 'right'-->
       <crudOperation :permission="permission" />
       <!--表单组件-->
-      <el-dialog :close-on-click-modal="false" :before-close="crud.cancelCU" :visible.sync="crud.status.cu > 0" :title="crud.status.title" width="500px">
+      <el-dialog :close-on-click-modal="false" :before-close="crud.cancelCU" :visible.sync="crud.status.cu > 0" :title="crud.status.title">
         <el-form ref="form" :model="form" :rules="rules" size="small" label-width="80px">
-          <el-form-item label="古科学" prop="type">
-            <el-radio v-for="item in dict.rank_type" :key="item.id" v-model="form.type" :label="item.value">{{ item.label }}</el-radio>
-          </el-form-item>
           <el-form-item label="文章" prop="article">
             <template>
               <el-select
                 v-model="form.articleId"
+                style="width: 600px;"
                 filterable
                 remote
                 reserve-keyword
@@ -65,18 +63,26 @@
       <el-table ref="table" v-loading="crud.loading" :data="crud.data" size="small" style="width: 100%;" @selection-change="crud.selectionChangeHandler">
         <el-table-column type="selection" width="55" />
         <el-table-column prop="id" label="id" />
-        <el-table-column prop="type" label="古科学">
-          <template slot-scope="scope">
-            {{ dict.label.rank_type[scope.row.type] }}
+        <el-table-column prop="article.title" label="标题" />
+        <el-table-column prop="article.cover" label="封面">
+          <template slot-scope="{row}">
+            <el-image
+              :src="row.article.cover"
+              :preview-src-list="[row.article.cover]"
+              fit="contain"
+              lazy
+              class="el-avatar"
+            >
+              <div slot="error">
+                <i class="el-icon-document" />
+              </div>
+            </el-image>
           </template>
         </el-table-column>
-        <el-table-column prop="article" label="文章">
-          <template slot-scope="scope">
-            {{ scope.row.article.title }}
-          </template>
-        </el-table-column>
-        <el-table-column prop="sort" label="排名" />
-        <el-table-column v-if="checkPer(['admin','rank:edit','rank:del'])" label="操作" width="150px" align="center">
+        <el-table-column prop="sort" label="排序" />
+        <el-table-column prop="createTime" label="创建时间" />
+        <el-table-column prop="updateTime" label="更新时间" />
+        <el-table-column v-if="checkPer(['admin','article:edit','article:del'])" label="操作" width="150px" align="center">
           <template slot-scope="scope">
             <udOperation
               :data="scope.row"
@@ -92,29 +98,31 @@
 </template>
 
 <script>
-import crudRank from '@/api/rank'
+import crudArticleSpecials from '@/api/articlesSpecials'
 import CRUD, { presenter, header, form, crud } from '@crud/crud'
 import rrOperation from '@crud/RR.operation'
 import crudOperation from '@crud/CRUD.operation'
 import udOperation from '@crud/UD.operation'
 import pagination from '@crud/Pagination'
-import { queryAllUnSelectedWithRank } from '@/api/article'
+import { queryAllUnSelectedWithSpecial } from '@/api/article'
+import { getAll } from '@/api/special'
 
-const defaultForm = { id: null, type: 0, article: null, articleId: null, sort: null, createBy: null, updateBy: null, createTime: null, updateTime: null }
+let id = 0
+const defaultForm = { id: null, article: null, specialId: null, articleId: null, sort: null, reading: null, createTime: null, updateTime: null }
 export default {
-  name: 'Rank',
+  name: 'ArticleSpecial',
   components: { pagination, crudOperation, rrOperation, udOperation },
   mixins: [presenter(), header(), form(defaultForm), crud()],
-  dicts: ['rank_type'],
   cruds() {
-    return CRUD({ title: '古科学', url: 'api/rank', idField: 'id', sort: 'id,desc', crudMethod: { ...crudRank }})
+    return CRUD({ title: '内丹学-文章', url: 'api/articlesSpecials', idField: 'id', sort: ['sort,asc', 'id,desc'], crudMethod: { ...crudArticleSpecials }})
   },
   data() {
     return {
       options: [],
       list: [],
       loading: false,
-      states: [],
+      specials: null,
+      isFirst: true,
       permission: {
         add: ['admin', 'rank:add'],
         edit: ['admin', 'rank:edit'],
@@ -146,13 +154,29 @@ export default {
   },
   computed() {
   },
+  created() {
+    this.getSpecials()
+  },
   methods: {
     // 钩子：在获取表格数据之前执行，false 则代表不获取数据
     [CRUD.HOOK.beforeRefresh]() {
+      if (this.isFirst) {
+        const index = window.location.href.indexOf('?')
+        const paramStr = window.location.href.substring(index + 1, window.location.href.length)
+        const params = paramStr.split('&')
+        params.forEach(element => {
+          if (element.indexOf('id') >= 0) {
+            id = element.substring(element.indexOf('=') + 1, element.length)
+            this.query.specialId = id
+          }
+        })
+        this.isFirst = false
+      }
       return true
     },
     // 新增与编辑前做的操作
     [CRUD.HOOK.afterToCU](crud, form) {
+      form.specialId = this.query.specialId
       if (form.id) {
         this.loading = false
         this.list.push(form.article)
@@ -162,7 +186,6 @@ export default {
         })
         form.articleId = form.article.id
       }
-      form.type = form.type.toString()
     },
     // 新增前将多选的值设置为空
     [CRUD.HOOK.beforeToAdd]() {
@@ -172,14 +195,20 @@ export default {
     },
     // 提交前做的操作
     [CRUD.HOOK.afterValidateCU](crud) {
+      crud.form.specialId = this.query.specialId
       crud.form.article = { id: crud.form.articleId }
       return true
     },
+    getSpecials() {
+      getAll().then(res => {
+        this.specials = res
+      }).catch(() => { })
+    },
     remoteMethod(query) {
       if (query !== '') {
-        const param = this.form.type + '&title=' + query
+        const param = this.query.specialId + '&title=' + query
         this.loading = true
-        queryAllUnSelectedWithRank(param).then(res => {
+        queryAllUnSelectedWithSpecial(param).then(res => {
           this.loading = false
           this.list = res
           this.options = this.list.filter(item => {

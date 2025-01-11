@@ -46,6 +46,20 @@ export function find(data) {
   })
 }
 
+export function queryAllUnSelectedWithSpecial(data) {
+  return request({
+    url: 'api/article/queryAllUnSelectedWithSpecial?specialId=' + data,
+    method: 'get'
+  })
+}
+
+export function queryAllUnSelectedWithRank(data) {
+  return request({
+    url: 'api/article/queryAllUnSelectedWithRank?type=' + data,
+    method: 'get'
+  })
+}
+
 export function page(data) {
   return request({
     url: 'api/article?size=' + data,
