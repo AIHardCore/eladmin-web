@@ -79,7 +79,7 @@ export default {
         page: 0,
         size: 20,
         enabled: true,
-        sort: ['sort,asc', 'id,desc']
+        sort: ['top,desc', 'sort,asc', 'id,desc']
       }
     }
   },

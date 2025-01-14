@@ -65,7 +65,7 @@ export default {
         size: 20,
         enabled: true,
         title: this.$route.query.key,
-        sort: ['sort,asc', 'id,desc']
+        sort: ['top,desc', 'sort,asc', 'id,desc']
       }
     }
   },
