@@ -89,7 +89,8 @@ export default {
     },
     loadArticleSpecials() {
       const params = {
-        specialId: this.id
+        specialId: this.id,
+        enabled: true
       }
       crudArticleSpecials.all(params).then(res => {
         this.articleSpecials = res
