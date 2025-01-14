@@ -32,6 +32,14 @@ export function enabled(data) {
   })
 }
 
+export function top(data) {
+  return request({
+    url: 'api/article/top',
+    method: 'put',
+    data
+  })
+}
+
 export function detail(data) {
   return request({
     url: 'api/articleBody/' + data,
@@ -67,4 +75,4 @@ export function page(data) {
   })
 }
 
-export default { add, edit, del, detail, find, page, enabled }
+export default { add, edit, del, detail, find, page, enabled, top, queryAllUnSelectedWithSpecial, queryAllUnSelectedWithRank }

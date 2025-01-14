@@ -24,6 +24,22 @@
             :value="item.key"
           />
         </el-select>
+        <el-select
+          v-model="query.top"
+          clearable
+          size="small"
+          placeholder="置顶"
+          class="filter-item"
+          style="width: 100px"
+          @change="crud.toQuery"
+        >
+          <el-option
+            v-for="item in dict.top_status"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value"
+          />
+        </el-select>
         <rrOperation :crud="crud" />
       </div>
       <!--如果想在工具栏加入更多按钮，可以使用插槽方式， slot = 'left' or 'right'-->
@@ -93,6 +109,16 @@
             </el-image>
           </template>
         </el-table-column>
+        <el-table-column label="置顶" align="center" prop="enabled">
+          <template slot-scope="scope">
+            <el-switch
+              v-model="scope.row.top"
+              active-color="#409EFF"
+              inactive-color="#F56C6C"
+              @change="changeTop(scope.row, scope.row.top)"
+            />
+          </template>
+        </el-table-column>
         <el-table-column label="状态" align="center" prop="enabled">
           <template slot-scope="scope">
             <el-switch
@@ -138,7 +164,7 @@ export default {
   name: 'Article',
   components: { pagination, crudOperation, rrOperation, udOperation, WangEditor },
   mixins: [presenter(), header(), form(defaultForm), crud()],
-  dicts: ['user_status'],
+  dicts: ['user_status', 'top_status'],
   cruds() {
     return CRUD({ title: '文章', url: 'api/article', idField: 'id', sort: ['sort,asc', 'id,desc'], crudMethod: { ...crudArticle }})
   },
@@ -246,6 +272,23 @@ export default {
         })
       }).catch(() => {
         data.enabled = !data.enabled
+      })
+    },
+    // 改变置顶状态
+    changeTop(data, val) {
+      this.$confirm('此操作将 "' + this.dict.label.top_status[val] + '" ' + data.title + ', 是否继续？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        crudArticle.top(data).then(res => {
+          this.crud.notify(this.dict.label.top_status[val] + '成功', CRUD.NOTIFICATION_TYPE.SUCCESS)
+          this.crud.toQuery()
+        }).catch(() => {
+          data.top = !data.top
+        })
+      }).catch(() => {
+        data.top = !data.top
       })
     },
     showDrawer() {
