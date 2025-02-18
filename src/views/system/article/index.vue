@@ -109,7 +109,7 @@
             </el-image>
           </template>
         </el-table-column>
-        <el-table-column label="置顶" align="center" prop="enabled">
+        <el-table-column label="置顶" align="center" prop="top">
           <template slot-scope="scope">
             <el-switch
               v-model="scope.row.top"
