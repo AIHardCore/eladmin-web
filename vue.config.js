@@ -21,7 +21,7 @@ if (isProd) {
   }
   cdn = {
     css: [
-      process.env.VUE_APP_PUBLIC_PATH_PROD + 'index.css' // 提前引入elementUI样式
+      // process.env.VUE_APP_PUBLIC_PATH_PROD + 'index.css' // 提前引入elementUI样式
     ], // 放置css文件目录
     js: [
       // process.env.VUE_APP_PUBLIC_PATH_PROD + 'vue.min.js', // vuejs
