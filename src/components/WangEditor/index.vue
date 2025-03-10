@@ -50,7 +50,7 @@ export default {
               const data = res.data
               data.data.forEach(val => {
                 // 最后插入图片
-                insertFn(val, '', '')
+                insertFn(val + '-2_500_500_q_75', '', '')
               })
             })
           }
